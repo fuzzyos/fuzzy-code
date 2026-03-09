@@ -306,7 +306,7 @@ Place in `~/.fuzzy/agent/themes/`, `.fuzzy/themes/`, or a [fuzzy package](#fuzzy
 
 ### Fuzzy Packages
 
-Bundle and share extensions, skills, prompts, and themes via npm or git. Find packages on [npmjs.com](https://www.npmjs.com/search?q=keywords%3Api-package) or [Discord](https://discord.com/channels/1456806362351669492/1457744485428629628).
+Bundle and share extensions, skills, prompts, and themes via npm or git. Find packages on [npmjs.com](https://www.npmjs.com/search?q=keywords%3Afuzzy-package) or [Discord](https://discord.com/channels/1480458462470209618/1480466340320903338).
 
 > **Security:** Fuzzy packages run with full system access. Extensions execute arbitrary code, and skills can instruct the model to perform any action including running executables. Review source code before installing third-party packages.
 
