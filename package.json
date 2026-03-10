@@ -1,6 +1,6 @@
 {
 	"name": "@fuzzyos/fuzzy-code",
-	"version": "0.1.1",
+	"version": "0.1.4",
 	"description": "Coding agent CLI with read, bash, edit, write tools and session management",
 	"type": "module",
 	"fuzzyConfig": {
@@ -40,9 +40,9 @@
 	},
 	"dependencies": {
 		"@mariozechner/jiti": "^2.6.2",
-		"@fuzzyos/fuzzy-agent": "^0.1.1",
-		"@fuzzyos/fuzzy-ai": "^0.1.1",
-		"@fuzzyos/fuzzy-tui": "^0.1.1",
+		"@fuzzyos/fuzzy-agent": "^0.1.4",
+		"@fuzzyos/fuzzy-ai": "^0.1.4",
+		"@fuzzyos/fuzzy-tui": "^0.1.4",
 		"@silvia-odwyer/photon-node": "^0.3.4",
 		"chalk": "^5.5.0",
 		"cli-highlight": "^2.1.11",
