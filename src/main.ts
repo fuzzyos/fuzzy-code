@@ -1,5 +1,5 @@
 /**
- * Main entry point for the coding agent CLI.
+ * Main entry point for the code CLI.
  *
  * This file handles CLI argument parsing and translates them into
  * createAgentSession() options. The SDK does the heavy lifting.
@@ -35,7 +35,7 @@ import { initTheme, stopThemeWatcher } from "./modes/interactive/theme/theme.js"
  * Read all content from piped stdin.
  * Returns undefined if stdin is a TTY (interactive terminal).
  */
-async function readFuzzypedStdin(): Promise<string | undefined> {
+async function readPipedStdin(): Promise<string | undefined> {
 	// If stdin is a TTY, we're running interactively - don't read stdin
 	if (process.stdin.isTTY) {
 		return undefined;
@@ -118,12 +118,14 @@ Examples:
   ${getPackageCommandUsage("remove")}
 
 Remove a package and its source from settings.
+Alias: ${APP_NAME} uninstall <source> [-l]
 
 Options:
   -l, --local    Remove from project settings (.fuzzy/settings.json)
 
-Example:
+Examples:
   ${APP_NAME} remove npm:@foo/bar
+  ${APP_NAME} uninstall npm:@foo/bar
 `);
 			return;
 
@@ -147,8 +149,14 @@ List installed packages from user and project settings.
 }
 
 function parsePackageCommand(args: string[]): PackageCommandOptions | undefined {
-	const [command, ...rest] = args;
-	if (command !== "install" && command !== "remove" && command !== "update" && command !== "list") {
+	const [rawCommand, ...rest] = args;
+	let command: PackageCommand | undefined;
+	if (rawCommand === "uninstall") {
+		command = "remove";
+	} else if (rawCommand === "install" || rawCommand === "remove" || rawCommand === "update" || rawCommand === "list") {
+		command = rawCommand;
+	}
+	if (!command) {
 		return undefined;
 	}
 
@@ -668,7 +676,7 @@ export async function main(args: string[]) {
 
 	// Read piped stdin content (if any) - skip for RPC mode which uses stdin for JSON-RPC
 	if (parsed.mode !== "rpc") {
-		const stdinContent = await readFuzzypedStdin();
+		const stdinContent = await readPipedStdin();
 		if (stdinContent !== undefined) {
 			// Force print mode since interactive mode requires a TTY for keyboard input
 			parsed.print = true;

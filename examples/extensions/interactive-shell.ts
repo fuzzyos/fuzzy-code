@@ -119,8 +119,8 @@ function isInteractiveCommand(command: string): boolean {
 		// Match after pipe: "cat file | less"
 		const pipeIdx = trimmed.lastIndexOf("|");
 		if (pipeIdx !== -1) {
-			const afterFuzzype = trimmed.slice(pipeIdx + 1).trim();
-			if (afterFuzzype === cmdLower || afterFuzzype.startsWith(`${cmdLower} `)) {
+			const afterPipe = trimmed.slice(pipeIdx + 1).trim();
+			if (afterPipe === cmdLower || afterPipe.startsWith(`${cmdLower} `)) {
 				return true;
 			}
 		}

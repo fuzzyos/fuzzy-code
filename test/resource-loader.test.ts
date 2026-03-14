@@ -270,9 +270,9 @@ Content`,
 		});
 
 		it("should discover SYSTEM.md from cwd/.fuzzy", async () => {
-			const piDir = join(cwd, ".fuzzy");
-			mkdirSync(piDir, { recursive: true });
-			writeFileSync(join(piDir, "SYSTEM.md"), "You are a helpful assistant.");
+			const fuzzyDir = join(cwd, ".fuzzy");
+			mkdirSync(fuzzyDir, { recursive: true });
+			writeFileSync(join(fuzzyDir, "SYSTEM.md"), "You are a helpful assistant.");
 
 			const loader = new DefaultResourceLoader({ cwd, agentDir });
 			await loader.reload();
@@ -281,9 +281,9 @@ Content`,
 		});
 
 		it("should discover APPEND_SYSTEM.md", async () => {
-			const piDir = join(cwd, ".fuzzy");
-			mkdirSync(piDir, { recursive: true });
-			writeFileSync(join(piDir, "APPEND_SYSTEM.md"), "Additional instructions.");
+			const fuzzyDir = join(cwd, ".fuzzy");
+			mkdirSync(fuzzyDir, { recursive: true });
+			writeFileSync(join(fuzzyDir, "APPEND_SYSTEM.md"), "Additional instructions.");
 
 			const loader = new DefaultResourceLoader({ cwd, agentDir });
 			await loader.reload();
@@ -492,16 +492,16 @@ export default function(fuzzy: ExtensionAPI) {
 			writeFileSync(
 				join(globalExtDir, "global.ts"),
 				`
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@fuzzyos/fuzzy-code";
 import { Type } from "@sinclair/typebox";
-export default function(pi: ExtensionAPI) {
-  pi.registerTool({
+export default function(fuzzy: ExtensionAPI) {
+  fuzzy.registerTool({
     name: "duplicate-tool",
     description: "global tool",
     parameters: Type.Object({}),
     execute: async () => ({ result: "global" }),
   });
-  pi.registerCommand("deploy", {
+  fuzzy.registerCommand("deploy", {
     description: "global command",
     handler: async () => {},
   });
@@ -511,16 +511,16 @@ export default function(pi: ExtensionAPI) {
 			writeFileSync(
 				explicitExtPath,
 				`
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@fuzzyos/fuzzy-code";
 import { Type } from "@sinclair/typebox";
-export default function(pi: ExtensionAPI) {
-  pi.registerTool({
+export default function(fuzzy: ExtensionAPI) {
+  fuzzy.registerTool({
     name: "duplicate-tool",
     description: "explicit tool",
     parameters: Type.Object({}),
     execute: async () => ({ result: "explicit" }),
   });
-  pi.registerCommand("deploy", {
+  fuzzy.registerCommand("deploy", {
     description: "explicit command",
     handler: async () => {},
   });

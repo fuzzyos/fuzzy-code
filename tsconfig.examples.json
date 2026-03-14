@@ -5,7 +5,7 @@
 		"paths": {
 			"@fuzzyos/fuzzy-code": ["./src/index.ts"],
 			"@fuzzyos/fuzzy-code/hooks": ["./src/core/hooks/index.ts"],
-			"@fuzzyos/fuzzy-tui": ["../tui/src/index.ts"],
+			"@fuzzyos/fuzzy-tui": ["../fuzzy-tui/src/index.ts"],
 			"@fuzzyos/fuzzy-ai": ["../fuzzy-ai/src/index.ts"],
 			"@sinclair/typebox": ["../../node_modules/@sinclair/typebox"]
 		},

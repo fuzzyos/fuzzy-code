@@ -12,7 +12,7 @@ import { join } from "path";
 import { getAgentDir } from "../config.js";
 
 /**
- * Application-level actions (coding agent specific).
+ * Application-level actions (fuzzy-code specific).
  */
 export type AppAction =
 	| "interrupt"

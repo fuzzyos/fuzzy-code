@@ -54,6 +54,15 @@ npm:pkg
 - Versioned specs are pinned and skipped by `fuzzy update`.
 - Global installs use `npm install -g`.
 - Project installs go under `.fuzzy/npm/`.
+- Set `npmCommand` in `settings.json` to pin npm package lookup and install operations to a specific wrapper command such as `mise` or `asdf`.
+
+Example:
+
+```json
+{
+  "npmCommand": ["mise", "exec", "node@20", "--", "npm"]
+}
+```
 
 ### git
 

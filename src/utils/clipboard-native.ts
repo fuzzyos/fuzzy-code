@@ -12,7 +12,7 @@ const hasDisplay = process.platform !== "linux" || Boolean(process.env.DISPLAY |
 
 if (!process.env.TERMUX_VERSION && hasDisplay) {
 	try {
-		clipboard = require("@fuzzyos/clipboard") as ClipboardModule;
+		clipboard = require("@crosscopy/clipboard") as ClipboardModule;
 	} catch {
 		clipboard = null;
 	}

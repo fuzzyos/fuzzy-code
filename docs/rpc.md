@@ -1,6 +1,6 @@
 # RPC Mode
 
-RPC mode enables headless operation of the coding agent via a JSON protocol over stdin/stdout. This is useful for embedding the agent in other applications, IDEs, or custom UIs.
+RPC mode enables headless operation of the code via a JSON protocol over stdin/stdout. This is useful for embedding the agent in other applications, IDEs, or custom UIs.
 
 **Note for Node.js/TypeScript users**: If you're building a Node.js application, consider using `AgentSession` directly from `@fuzzyos/fuzzy-code` instead of spawning a subprocess. See [`src/core/agent-session.ts`](../src/core/agent-session.ts) for the API. For a subprocess-based TypeScript client, see [`src/modes/rpc/rpc-client.ts`](../src/modes/rpc/rpc-client.ts).
 
@@ -1148,7 +1148,7 @@ Parse errors:
 
 Source files:
 - [`packages/fuzzy-ai/src/types.ts`](../../fuzzy-ai/src/types.ts) - `Model`, `UserMessage`, `AssistantMessage`, `ToolResultMessage`
-- [`packages/agent/src/types.ts`](../../fuzzy-agent/src/types.ts) - `AgentMessage`, `AgentEvent`
+- [`packages/fuzzy-agent/src/types.ts`](../../fuzzy-agent/src/types.ts) - `AgentMessage`, `AgentEvent`
 - [`src/core/messages.ts`](../src/core/messages.ts) - `BashExecutionMessage`
 - [`src/modes/rpc/rpc-types.ts`](../src/modes/rpc/rpc-types.ts) - RPC command/response types, extension UI request/response types
 
@@ -1322,6 +1322,13 @@ function attachJsonlReader(stream, onLine) {
             buffer = buffer.slice(newlineIndex + 1);
             if (line.endsWith("\r")) line = line.slice(0, -1);
             onLine(line);
+        }
+    });
+
+    stream.on("end", () => {
+        buffer += decoder.end();
+        if (buffer.length > 0) {
+            onLine(buffer.endsWith("\r") ? buffer.slice(0, -1) : buffer);
         }
     });
 }

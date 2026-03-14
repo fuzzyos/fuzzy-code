@@ -50,6 +50,6 @@ function notify(title: string, body: string): void {
 
 export default function (fuzzy: ExtensionAPI) {
 	fuzzy.on("agent_end", async () => {
-		notify("Fuzzy", "Ready for input");
+		notify("Pi", "Ready for input");
 	});
 }

@@ -109,7 +109,7 @@ Modifier combinations: `ctrl+shift+x`, `alt+ctrl+x`, `ctrl+shift+alt+x`, `ctrl+1
 | `followUp` | `alt+enter` | Queue follow-up message |
 | `dequeue` | `alt+up` | Restore queued messages to editor |
 
-### Selection (Lists, Fuzzyckers)
+### Selection (Lists, Pickers)
 
 | Action | Default | Description |
 |--------|---------|-------------|
@@ -122,12 +122,12 @@ Modifier combinations: `ctrl+shift+x`, `alt+ctrl+x`, `ctrl+shift+alt+x`, `ctrl+1
 
 ### Tree Navigation
 
-| Action              | Default                       | Description                                                                      |
-|---------------------|-------------------------------|----------------------------------------------------------------------------------|
-| `treeFoldOrUp`      | `ctrl+left`, `alt+left`       | Fold current branch segment, or jump to the previous segment start               |
-| `treeUnfoldOrDown`  | `ctrl+right`, `alt+right`     | Unfold current branch segment, or jump to the next segment start or branch end   |
+| Action | Default | Description |
+|--------|---------|-------------|
+| `treeFoldOrUp` | `ctrl+left`, `alt+left` | Fold current branch segment, or jump to the previous segment start |
+| `treeUnfoldOrDown` | `ctrl+right`, `alt+right` | Unfold current branch segment, or jump to the next segment start or branch end |
 
-### Session Fuzzycker
+### Session Picker
 
 | Action | Default | Description |
 |--------|---------|-------------|

@@ -39,11 +39,10 @@
 
 import { spawn } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { homedir } from "node:os";
 import { join } from "node:path";
 import { SandboxManager, type SandboxRuntimeConfig } from "@anthropic-ai/sandbox-runtime";
 import type { ExtensionAPI } from "@fuzzyos/fuzzy-code";
-import { type BashOperations, createBashTool } from "@fuzzyos/fuzzy-code";
+import { type BashOperations, createBashTool, getAgentDir } from "@fuzzyos/fuzzy-code";
 
 interface SandboxConfig extends SandboxRuntimeConfig {
 	enabled?: boolean;
@@ -75,7 +74,7 @@ const DEFAULT_CONFIG: SandboxConfig = {
 
 function loadConfig(cwd: string): SandboxConfig {
 	const projectConfigPath = join(cwd, ".fuzzy", "sandbox.json");
-	const globalConfigPath = join(homedir(), ".fuzzy", "agent", "sandbox.json");
+	const globalConfigPath = join(getAgentDir(), "extensions", "sandbox.json");
 
 	let globalConfig: Partial<SandboxConfig> = {};
 	let projectConfig: Partial<SandboxConfig> = {};

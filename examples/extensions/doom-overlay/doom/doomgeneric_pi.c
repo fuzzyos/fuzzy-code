@@ -1,5 +1,5 @@
 /**
- * fuzzy-doom platform implementation for doomgeneric
+ * pi-doom platform implementation for doomgeneric
  *
  * Minimal implementation - no sound, just framebuffer and input.
  */

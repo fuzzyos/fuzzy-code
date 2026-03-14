@@ -9,11 +9,11 @@ import type { ExtensionAPI, Theme } from "@fuzzyos/fuzzy-code";
 import { VERSION } from "@fuzzyos/fuzzy-code";
 
 // --- PI MASCOT ---
-// Based on pi_mascot.ts - the fuzzy agent character
-function getFuzzyMascot(theme: Theme): string[] {
+// Based on fuzzy_mascot.ts - the fuzzy agent character
+function getPiMascot(theme: Theme): string[] {
 	// --- COLORS ---
 	// 3b1b Blue: R=80, G=180, B=230
-	const piBlue = (text: string) => theme.fg("accent", text);
+	const fuzzyBlue = (text: string) => theme.fg("accent", text);
 	const white = (text: string) => text; // Use plain white (or theme.fg("text", text))
 	const black = (text: string) => theme.fg("dim", text); // Use dim for contrast
 
@@ -33,12 +33,12 @@ function getFuzzyMascot(theme: Theme): string[] {
 
 	// 3. Line 2: The Wide Top Bar (The "Overhang")
 	// 14 blocks wide for that serif-style roof
-	const lineBar = `  ${piBlue(BLOCK.repeat(14))}`;
+	const lineBar = `  ${fuzzyBlue(BLOCK.repeat(14))}`;
 
 	// 4. Lines 3-6: The Legs
 	// Indented 5 spaces relative to the very left edge
 	// Leg width: 2 blocks | Gap: 4 blocks
-	const lineLeg = `     ${piBlue(BLOCK.repeat(2))}    ${piBlue(BLOCK.repeat(2))}`;
+	const lineLeg = `     ${fuzzyBlue(BLOCK.repeat(2))}    ${fuzzyBlue(BLOCK.repeat(2))}`;
 
 	// --- ASSEMBLY ---
 	return ["", lineEyes, lineBar, lineLeg, lineLeg, lineLeg, lineLeg, ""];
@@ -51,9 +51,9 @@ export default function (fuzzy: ExtensionAPI) {
 			ctx.ui.setHeader((_tui, theme) => {
 				return {
 					render(_width: number): string[] {
-						const mascotLines = getFuzzyMascot(theme);
+						const mascotLines = getPiMascot(theme);
 						// Add a subtitle with hint
-						const subtitle = `${theme.fg("muted", "   shitty coding agent")}${theme.fg("dim", ` v${VERSION}`)}`;
+						const subtitle = `${theme.fg("muted", "   shitty code")}${theme.fg("dim", ` v${VERSION}`)}`;
 						return [...mascotLines, subtitle];
 					},
 					invalidate() {},

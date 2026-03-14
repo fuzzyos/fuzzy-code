@@ -21,7 +21,7 @@ function getTextOutput(result: any): string {
 	);
 }
 
-describe("Coding Agent Tools", () => {
+describe("Code Tools", () => {
 	let testDir: string;
 
 	beforeEach(() => {

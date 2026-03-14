@@ -1,5 +1,5 @@
 /**
- * RPC Client for programmatic access to the coding agent.
+ * RPC Client for programmatic access to the code.
  *
  * Spawns the agent in RPC mode and provides a typed API for all operations.
  */

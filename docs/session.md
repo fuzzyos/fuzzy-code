@@ -32,7 +32,7 @@ Source on GitHub ([fuzzyos](https://github.com/fuzzyos/fuzzyos)):
 - [`packages/fuzzy-code/src/core/session-manager.ts`](https://github.com/fuzzyos/fuzzyos/blob/main/packages/fuzzy-code/src/core/session-manager.ts) - Session entry types and SessionManager
 - [`packages/fuzzy-code/src/core/messages.ts`](https://github.com/fuzzyos/fuzzyos/blob/main/packages/fuzzy-code/src/core/messages.ts) - Extended message types (BashExecutionMessage, CustomMessage, etc.)
 - [`packages/fuzzy-ai/src/types.ts`](https://github.com/fuzzyos/fuzzyos/blob/main/packages/fuzzy-ai/src/types.ts) - Base message types (UserMessage, AssistantMessage, ToolResultMessage)
-- [`packages/agent/src/types.ts`](https://github.com/fuzzyos/fuzzyos/blob/main/packages/agent/src/types.ts) - AgentMessage union type
+- [`packages/fuzzy-agent/src/types.ts`](https://github.com/fuzzyos/fuzzyos/blob/main/packages/fuzzy-agent/src/types.ts) - AgentMessage union type
 
 For TypeScript definitions in your project, inspect `node_modules/@fuzzyos/fuzzy-code/dist/` and `node_modules/@fuzzyos/fuzzy-ai/dist/`.
 

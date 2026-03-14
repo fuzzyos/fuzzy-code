@@ -32,7 +32,7 @@ function createTinyBmp1x1Red24bpp(): Uint8Array {
 	buffer.writeUInt32LE(0, 46); // colors used
 	buffer.writeUInt32LE(0, 50); // important colors
 
-	// Fuzzyxel data (B, G, R) + 1 byte padding
+	// Pixel data (B, G, R) + 1 byte padding
 	buffer[54] = 0x00; // B
 	buffer[55] = 0x00; // G
 	buffer[56] = 0xff; // R
@@ -59,7 +59,7 @@ vi.mock("child_process", async () => {
 });
 
 // Mock the native clipboard (not used in Wayland path, but needs to be mocked)
-vi.mock("@fuzzyos/clipboard", () => ({
+vi.mock("@crosscopy/clipboard", () => ({
 	default: {
 		hasImage: vi.fn(() => false),
 		getImageBinary: vi.fn(() => Promise.resolve(null)),

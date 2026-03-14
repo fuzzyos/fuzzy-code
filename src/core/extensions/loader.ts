@@ -1,7 +1,7 @@
 /**
  * Extension loader - loads TypeScript extension modules using jiti.
  *
- * Uses @mariozechner/jiti fork with virtualModules support for compiled Bun binaries.
+ * Uses jiti fork with virtualModules support for compiled Bun binaries.
  */
 
 import * as fs from "node:fs";
@@ -9,11 +9,11 @@ import { createRequire } from "node:module";
 import * as os from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import * as _bundledFuzzyAgentCore from "@fuzzyos/fuzzy-agent";
-import * as _bundledFuzzyAi from "@fuzzyos/fuzzy-ai";
-import * as _bundledFuzzyAiOauth from "@fuzzyos/fuzzy-ai/oauth";
+import * as _bundledPiAgentCore from "@fuzzyos/fuzzy-agent";
+import * as _bundledPiAi from "@fuzzyos/fuzzy-ai";
+import * as _bundledPiAiOauth from "@fuzzyos/fuzzy-ai/oauth";
 import type { KeyId } from "@fuzzyos/fuzzy-tui";
-import * as _bundledFuzzyTui from "@fuzzyos/fuzzy-tui";
+import * as _bundledPiTui from "@fuzzyos/fuzzy-tui";
 import { createJiti } from "@mariozechner/jiti";
 // Static imports of packages that extensions may use.
 // These MUST be static so Bun bundles them into the compiled binary.
@@ -22,7 +22,7 @@ import * as _bundledTypebox from "@sinclair/typebox";
 import { getAgentDir, isBunBinary } from "../../config.js";
 // NOTE: This import works because loader.ts exports are NOT re-exported from index.ts,
 // avoiding a circular dependency. Extensions can import from @fuzzyos/fuzzy-code.
-import * as _bundledFuzzyCodingAgent from "../../index.js";
+import * as _bundledPiCodingAgent from "../../index.js";
 import { createEventBus, type EventBus } from "../event-bus.js";
 import type { ExecOptions } from "../exec.js";
 import { execCommand } from "../exec.js";
@@ -41,30 +41,18 @@ import type {
 /** Modules available to extensions via virtualModules (for compiled Bun binary) */
 const VIRTUAL_MODULES: Record<string, unknown> = {
 	"@sinclair/typebox": _bundledTypebox,
-	"@fuzzyos/fuzzy-agent": _bundledFuzzyAgentCore,
-	"@fuzzyos/fuzzy-tui": _bundledFuzzyTui,
-	"@fuzzyos/fuzzy-ai": _bundledFuzzyAi,
-	"@fuzzyos/fuzzy-ai/oauth": _bundledFuzzyAiOauth,
-	"@fuzzyos/fuzzy-code": _bundledFuzzyCodingAgent,
+	"@fuzzyos/fuzzy-agent": _bundledPiAgentCore,
+	"@fuzzyos/fuzzy-tui": _bundledPiTui,
+	"@fuzzyos/fuzzy-ai": _bundledPiAi,
+	"@fuzzyos/fuzzy-ai/oauth": _bundledPiAiOauth,
+	"@fuzzyos/fuzzy-code": _bundledPiCodingAgent,
 };
 
 const require = createRequire(import.meta.url);
 
 /**
- * Returns true when running as a compiled/bundled binary (Bun or esbuild Node.js bundle).
- * In that case, virtualModules is used for extension loading instead of filesystem aliases.
- */
-function isBundledBinary(): boolean {
-	if (isBunBinary) return true;
-	// In a Node.js esbuild bundle, import.meta.url resolves to the bundle file itself.
-	// The dist/index.js sibling that exists in normal installs won't be present.
-	const __dirname = path.dirname(fileURLToPath(import.meta.url));
-	return !fs.existsSync(path.join(__dirname, "index.js"));
-}
-
-/**
  * Get aliases for jiti (used in Node.js/development mode).
- * In Bun binary mode or bundled Node.js, virtualModules is used instead.
+ * In Bun binary mode, virtualModules is used instead.
  */
 let _aliases: Record<string, string> | null = null;
 function getAliases(): Record<string, string> {
@@ -302,7 +290,7 @@ async function loadExtensionModule(extensionPath: string) {
 		// In Bun binary: use virtualModules for bundled packages (no filesystem resolution)
 		// Also disable tryNative so jiti handles ALL imports (not just the entry point)
 		// In Node.js/dev: use aliases to resolve to node_modules paths
-		...(isBundledBinary() ? { virtualModules: VIRTUAL_MODULES, tryNative: false } : { alias: getAliases() }),
+		...(isBunBinary ? { virtualModules: VIRTUAL_MODULES, tryNative: false } : { alias: getAliases() }),
 	});
 
 	const module = await jiti.import(extensionPath, { default: true });

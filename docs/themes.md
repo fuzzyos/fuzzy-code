@@ -52,7 +52,7 @@ vim ~/.fuzzy/agent/themes/my-theme.json
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/badlogic/fuzzyos/main/packages/fuzzy-code/src/modes/interactive/theme/theme-schema.json",
+  "$schema": "https://raw.githubusercontent.com/fuzzyos/fuzzyos/main/packages/fuzzy-code/src/modes/interactive/theme/theme-schema.json",
   "name": "my-theme",
   "vars": {
     "primary": "#00aaff",
@@ -122,7 +122,7 @@ vim ~/.fuzzy/agent/themes/my-theme.json
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/badlogic/fuzzyos/main/packages/fuzzy-code/src/modes/interactive/theme/theme-schema.json",
+  "$schema": "https://raw.githubusercontent.com/fuzzyos/fuzzyos/main/packages/fuzzy-code/src/modes/interactive/theme/theme-schema.json",
   "name": "my-theme",
   "vars": {
     "blue": "#0066cc",

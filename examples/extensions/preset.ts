@@ -39,10 +39,9 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import { homedir } from "node:os";
 import { join } from "node:path";
 import type { ExtensionAPI, ExtensionContext } from "@fuzzyos/fuzzy-code";
-import { DynamicBorder } from "@fuzzyos/fuzzy-code";
+import { DynamicBorder, getAgentDir } from "@fuzzyos/fuzzy-code";
 import { Container, Key, type SelectItem, SelectList, Text } from "@fuzzyos/fuzzy-tui";
 
 // Preset configuration
@@ -68,7 +67,7 @@ interface PresetsConfig {
  * Project-local presets override global presets with the same name.
  */
 function loadPresets(cwd: string): PresetsConfig {
-	const globalPath = join(homedir(), ".fuzzy", "agent", "presets.json");
+	const globalPath = join(getAgentDir(), "presets.json");
 	const projectPath = join(cwd, ".fuzzy", "presets.json");
 
 	let globalPresets: PresetsConfig = {};

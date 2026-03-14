@@ -21,14 +21,13 @@
  */
 
 import type { TextContent } from "@fuzzyos/fuzzy-ai";
-import type { ExtensionAPI } from "@fuzzyos/fuzzy-code";
+import { type ExtensionAPI, getAgentDir } from "@fuzzyos/fuzzy-code";
 import { Type } from "@sinclair/typebox";
 import { appendFileSync, constants, readFileSync } from "fs";
 import { access, readFile } from "fs/promises";
-import { homedir } from "os";
 import { join, resolve } from "path";
 
-const LOG_FILE = join(homedir(), ".fuzzy", "agent", "read-access.log");
+const LOG_FILE = join(getAgentDir(), "read-access.log");
 
 // Paths that are blocked from reading
 const BLOCKED_PATTERNS = [

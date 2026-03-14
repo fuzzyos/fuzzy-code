@@ -10,7 +10,7 @@
 
 import { type Api, type Context, type Model, registerApiProvider, streamSimple } from "@fuzzyos/fuzzy-ai";
 import { readFileSync } from "fs";
-import { homedir } from "os";
+import { getAgentDir } from "packages/fuzzy-code/src/config.js";
 import { join } from "path";
 import { MODELS, streamGitLabDuo } from "./index.js";
 
@@ -28,7 +28,7 @@ async function main() {
 	}
 
 	// Read auth
-	const authPath = join(homedir(), ".fuzzy", "agent", "auth.json");
+	const authPath = join(getAgentDir(), "extensions", "auth.json");
 	const authData = JSON.parse(readFileSync(authPath, "utf-8"));
 	const gitlabCred = authData["gitlab-duo"];
 	if (!gitlabCred?.access) {

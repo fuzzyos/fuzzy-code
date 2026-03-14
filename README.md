@@ -169,6 +169,8 @@ Submit messages while the agent is working:
 - **Escape** aborts and restores queued messages to editor
 - **Alt+Up** retrieves queued messages back to editor
 
+On Windows Terminal, `Alt+Enter` is fullscreen by default. Remap it in [docs/terminal-setup.md](docs/terminal-setup.md) so fuzzy can receive the follow-up shortcut.
+
 Configure delivery in [settings](docs/settings.md): `steeringMode` and `followUpMode` can be `"one-at-a-time"` (default, waits for response) or `"all"` (delivers all queued at once). `transport` selects provider transport preference (`"sse"`, `"websocket"`, or `"auto"`) for providers that support multiple transports.
 
 ---
@@ -322,12 +324,13 @@ fuzzy install https://github.com/user/repo@v1      # tag or commit
 fuzzy install ssh://git@github.com/user/repo
 fuzzy install ssh://git@github.com/user/repo@v1    # tag or commit
 fuzzy remove npm:@foo/fuzzy-tools
+fuzzy uninstall npm:@foo/fuzzy-tools          # alias for remove
 fuzzy list
 fuzzy update                               # skips pinned packages
 fuzzy config                               # enable/disable extensions, skills, prompts, themes
 ```
 
-Packages install to `~/.fuzzy/agent/git/` (git) or global npm. Use `-l` for project-local installs (`.fuzzy/git/`, `.fuzzy/npm/`).
+Packages install to `~/.fuzzy/agent/git/` (git) or global npm. Use `-l` for project-local installs (`.fuzzy/git/`, `.fuzzy/npm/`). If you use a Node version manager and want package installs to reuse a stable npm context, set `npmCommand` in `settings.json`, for example `["mise", "exec", "node@20", "--", "npm"]`.
 
 Create a package by adding a `fuzzy` key to `package.json`:
 
@@ -376,9 +379,9 @@ For non-Node.js integrations, use RPC mode over stdin/stdout:
 fuzzy --mode rpc
 ```
 
-See [docs/rpc.md](docs/rpc.md) for the protocol.
-
 RPC mode uses strict LF-delimited JSONL framing. Clients must split records on `\n` only. Do not use generic line readers like Node `readline`, which also split on Unicode separators inside JSON payloads.
+
+See [docs/rpc.md](docs/rpc.md) for the protocol.
 
 ---
 
@@ -411,11 +414,12 @@ fuzzy [options] [@files...] [messages...]
 ### Package Commands
 
 ```bash
-fuzzy install <source> [-l]    # Install package, -l for project-local
-fuzzy remove <source> [-l]     # Remove package
-fuzzy update [source]          # Update packages (skips pinned)
-fuzzy list                     # List installed packages
-fuzzy config                   # Enable/disable package resources
+fuzzy install <source> [-l]     # Install package, -l for project-local
+fuzzy remove <source> [-l]      # Remove package
+fuzzy uninstall <source> [-l]   # Alias for remove
+fuzzy update [source]           # Update packages (skips pinned)
+fuzzy list                      # List installed packages
+fuzzy config                    # Enable/disable package resources
 ```
 
 ### Modes

@@ -1,5 +1,5 @@
 /**
- * Run modes for the coding agent.
+ * Run modes for the code.
  */
 
 export { InteractiveMode, type InteractiveModeOptions } from "./interactive/interactive-mode.js";

@@ -1,5 +1,5 @@
 /**
- * Fuzzyrate Extension
+ * Pirate Extension
  *
  * Demonstrates modifying the system prompt in before_agent_start to dynamically
  * change agent behavior based on extension state.
@@ -20,7 +20,7 @@ export default function pirateExtension(fuzzy: ExtensionAPI) {
 		description: "Toggle pirate mode (agent speaks like a pirate)",
 		handler: async (_args, ctx) => {
 			pirateMode = !pirateMode;
-			ctx.ui.notify(pirateMode ? "Arrr! Fuzzyrate mode enabled!" : "Fuzzyrate mode disabled", "info");
+			ctx.ui.notify(pirateMode ? "Arrr! Pirate mode enabled!" : "Pirate mode disabled", "info");
 		},
 	});
 
