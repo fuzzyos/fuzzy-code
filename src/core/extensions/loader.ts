@@ -51,6 +51,16 @@ const VIRTUAL_MODULES: Record<string, unknown> = {
 const require = createRequire(import.meta.url);
 
 /**
+ * Returns true when running as a compiled binary (Bun or esbuild bundle).
+ * In bundled mode, jiti uses virtualModules instead of filesystem aliases.
+ */
+function isBundledBinary(): boolean {
+	if (isBunBinary) return true;
+	const __dirname = path.dirname(fileURLToPath(import.meta.url));
+	return !fs.existsSync(path.join(__dirname, "index.js"));
+}
+
+/**
  * Get aliases for jiti (used in Node.js/development mode).
  * In Bun binary mode, virtualModules is used instead.
  */
@@ -290,7 +300,7 @@ async function loadExtensionModule(extensionPath: string) {
 		// In Bun binary: use virtualModules for bundled packages (no filesystem resolution)
 		// Also disable tryNative so jiti handles ALL imports (not just the entry point)
 		// In Node.js/dev: use aliases to resolve to node_modules paths
-		...(isBunBinary ? { virtualModules: VIRTUAL_MODULES, tryNative: false } : { alias: getAliases() }),
+		...(isBundledBinary() ? { virtualModules: VIRTUAL_MODULES, tryNative: false } : { alias: getAliases() }),
 	});
 
 	const module = await jiti.import(extensionPath, { default: true });

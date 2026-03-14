@@ -1,0 +1,13 @@
+src/
+test/
+scripts/
+*.config.*
+*.config.ts
+tsconfig*.json
+.vscode/
+.github/
+*.tgz
+*.tsbuildinfo
+coverage/
+.nyc_output/
+node_modules/
