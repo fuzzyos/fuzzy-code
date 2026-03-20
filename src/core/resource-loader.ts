@@ -54,22 +54,32 @@ function resolvePromptInput(input: string | undefined, description: string): str
 	return input;
 }
 
-function loadContextFileFromDir(dir: string): { path: string; content: string } | null {
-	const candidates = ["AGENTS.md", "CLAUDE.md"];
-	for (const filename of candidates) {
-		const filePath = join(dir, filename);
-		if (existsSync(filePath)) {
+function loadContextFilesFromDir(dir: string): Array<{ path: string; content: string }> {
+	const results: Array<{ path: string; content: string }> = [];
+	const candidatePairs = [
+		["AGENTS.md", "AGENTS.local.md"],
+		["CLAUDE.md", "CLAUDE.local.md"],
+	];
+	for (const [main, local] of candidatePairs) {
+		const mainPath = join(dir, main);
+		if (existsSync(mainPath)) {
 			try {
-				return {
-					path: filePath,
-					content: readFileSync(filePath, "utf-8"),
-				};
+				results.push({ path: mainPath, content: readFileSync(mainPath, "utf-8") });
 			} catch (error) {
-				console.error(chalk.yellow(`Warning: Could not read ${filePath}: ${error}`));
+				console.error(chalk.yellow(`Warning: Could not read ${mainPath}: ${error}`));
 			}
+			const localPath = join(dir, local);
+			if (existsSync(localPath)) {
+				try {
+					results.push({ path: localPath, content: readFileSync(localPath, "utf-8") });
+				} catch (error) {
+					console.error(chalk.yellow(`Warning: Could not read ${localPath}: ${error}`));
+				}
+			}
+			break;
 		}
 	}
-	return null;
+	return results;
 }
 
 function loadProjectContextFiles(
@@ -81,10 +91,11 @@ function loadProjectContextFiles(
 	const contextFiles: Array<{ path: string; content: string }> = [];
 	const seenPaths = new Set<string>();
 
-	const globalContext = loadContextFileFromDir(resolvedAgentDir);
-	if (globalContext) {
-		contextFiles.push(globalContext);
-		seenPaths.add(globalContext.path);
+	for (const file of loadContextFilesFromDir(resolvedAgentDir)) {
+		if (!seenPaths.has(file.path)) {
+			contextFiles.push(file);
+			seenPaths.add(file.path);
+		}
 	}
 
 	const ancestorContextFiles: Array<{ path: string; content: string }> = [];
@@ -93,10 +104,11 @@ function loadProjectContextFiles(
 	const root = resolve("/");
 
 	while (true) {
-		const contextFile = loadContextFileFromDir(currentDir);
-		if (contextFile && !seenPaths.has(contextFile.path)) {
-			ancestorContextFiles.unshift(contextFile);
-			seenPaths.add(contextFile.path);
+		for (const file of loadContextFilesFromDir(currentDir)) {
+			if (!seenPaths.has(file.path)) {
+				ancestorContextFiles.unshift(file);
+				seenPaths.add(file.path);
+			}
 		}
 
 		if (currentDir === root) break;
