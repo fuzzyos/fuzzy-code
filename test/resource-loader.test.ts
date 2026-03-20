@@ -270,9 +270,9 @@ Content`,
 		});
 
 		it("should discover SYSTEM.md from cwd/.fuzzy", async () => {
-			const fuzzyDir = join(cwd, ".fuzzy");
-			mkdirSync(fuzzyDir, { recursive: true });
-			writeFileSync(join(fuzzyDir, "SYSTEM.md"), "You are a helpful assistant.");
+			const piDir = join(cwd, ".fuzzy");
+			mkdirSync(piDir, { recursive: true });
+			writeFileSync(join(piDir, "SYSTEM.md"), "You are a helpful assistant.");
 
 			const loader = new DefaultResourceLoader({ cwd, agentDir });
 			await loader.reload();
@@ -281,9 +281,9 @@ Content`,
 		});
 
 		it("should discover APPEND_SYSTEM.md", async () => {
-			const fuzzyDir = join(cwd, ".fuzzy");
-			mkdirSync(fuzzyDir, { recursive: true });
-			writeFileSync(join(fuzzyDir, "APPEND_SYSTEM.md"), "Additional instructions.");
+			const piDir = join(cwd, ".fuzzy");
+			mkdirSync(piDir, { recursive: true });
+			writeFileSync(join(piDir, "APPEND_SYSTEM.md"), "Additional instructions.");
 
 			const loader = new DefaultResourceLoader({ cwd, agentDir });
 			await loader.reload();

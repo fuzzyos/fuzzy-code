@@ -23,7 +23,7 @@ Configure via `package.json`:
 
 ```json
 {
-  "fuzzyConfig": {
+  "piConfig": {
     "name": "fuzzy",
     "configDir": ".fuzzy"
   }
@@ -62,8 +62,8 @@ npm test -- test/specific.test.ts # Run specific test
 
 ```
 packages/
-  fuzzy-ai/     # LLM provider abstraction
-  fuzzy-agent/  # Agent loop and message types
-  fuzzy-tui/    # Terminal UI components
-  fuzzy-code/   # CLI and interactive mode
+  ai/           # LLM provider abstraction
+  agent/        # Agent loop and message types  
+  tui/          # Terminal UI components
+  fuzzy-code/ # CLI and interactive mode
 ```

@@ -3,7 +3,7 @@ Fuzzy is a minimal terminal coding harness. Adapt fuzzy to your workflows, not t
 
 Fuzzy ships with powerful defaults but skips features like sub agents and plan mode. Instead, you can ask fuzzy to build what you want or install a third party fuzzy package that matches your workflow.
 
-Fuzzy runs in four modes: interactive, print or JSON, RPC for process integration, and an SDK for embedding in your own apps.
+Fuzzy runs in four modes: interactive, print or JSON, RPC for process integration, and an SDK for embedding in your own apps. See [openclaw/openclaw](https://github.com/openclaw/openclaw) for a real-world SDK integration.
 
 ## Table of Contents
 
@@ -137,7 +137,7 @@ Type `/` in the editor to trigger commands. [Extensions](#extensions) can regist
 | `/copy` | Copy last assistant message to clipboard |
 | `/export [file]` | Export session to HTML file |
 | `/share` | Upload as private GitHub gist with shareable HTML link |
-| `/reload` | Reload extensions, skills, prompts, context files (themes hot-reload automatically) |
+| `/reload` | Reload keybindings, extensions, skills, prompts, and context files (themes hot-reload automatically) |
 | `/hotkeys` | Show all keyboard shortcuts |
 | `/changelog` | Display version history |
 | `/quit`, `/exit` | Quit fuzzy |
@@ -164,7 +164,7 @@ See `/hotkeys` for the full list. Customize via `~/.fuzzy/agent/keybindings.json
 
 Submit messages while the agent is working:
 
-- **Enter** queues a *steering* message, delivered after current tool execution (interrupts remaining tools)
+- **Enter** queues a *steering* message, delivered after the current assistant turn finishes executing its tool calls
 - **Alt+Enter** queues a *follow-up* message, delivered only after the agent finishes all work
 - **Escape** aborts and restores queued messages to editor
 - **Alt+Up** retrieves queued messages back to editor
@@ -188,17 +188,22 @@ fuzzy -c                  # Continue most recent session
 fuzzy -r                  # Browse and select from past sessions
 fuzzy --no-session        # Ephemeral mode (don't save)
 fuzzy --session <path>    # Use specific session file or ID
+fuzzy --fork <path>       # Fork specific session file or ID into a new session
 ```
 
 ### Branching
 
 **`/tree`** - Navigate the session tree in-place. Select any previous point, continue from there, and switch between branches. All history preserved in a single file.
 
+<p align="center"><img src="docs/images/tree-view.png" alt="Tree View" width="600"></p>
+
 - Search by typing, fold/unfold and jump between branches with Ctrl+←/Ctrl+→ or Alt+←/Alt+→, page with ←/→
 - Filter modes (Ctrl+O): default → no-tools → user-only → labeled-only → all
 - Press `l` to label entries as bookmarks
 
 **`/fork`** - Create a new session file from the current branch. Opens a selector, copies history up to the selected point, and places that message in the editor for modification.
+
+**`--fork <path|id>`** - Fork an existing session file or partial session UUID directly from the CLI. This copies the full source session into a new session file in the current project.
 
 ### Compaction
 
@@ -308,7 +313,7 @@ Place in `~/.fuzzy/agent/themes/`, `.fuzzy/themes/`, or a [fuzzy package](#fuzzy
 
 ### Fuzzy Packages
 
-Bundle and share extensions, skills, prompts, and themes via npm or git. Find packages on [npmjs.com](https://www.npmjs.com/search?q=keywords%3Afuzzy-package) or [Discord](https://discord.com/channels/1480458462470209618/1480466340320903338).
+Bundle and share extensions, skills, prompts, and themes via npm or git. Find packages on [npmjs.com](https://www.npmjs.com/search?q=keywords%3Api-package) or [Discord](https://discord.com/channels/1456806362351669492/1457744485428629628).
 
 > **Security:** Fuzzy packages run with full system access. Extensions execute arbitrary code, and skills can instruct the model to perform any action including running executables. Review source code before installing third-party packages.
 
@@ -389,7 +394,7 @@ See [docs/rpc.md](docs/rpc.md) for the protocol.
 
 Fuzzy is aggressively extensible so it doesn't have to dictate your workflow. Features that other tools bake in can be built with [extensions](#extensions), [skills](#skills), or installed from third-party [fuzzy packages](#fuzzy-packages). This keeps the core minimal while letting you shape fuzzy to fit how you work.
 
-**No MCP.** Build CLI tools with READMEs (see [Skills](#skills)), or build an extension that adds MCP support. [Why?](https://fuzzyos.at/posts/2025-11-02-what-if-you-dont-need-mcp/)
+**No MCP.** Build CLI tools with READMEs (see [Skills](#skills)), or build an extension that adds MCP support. [Why?]
 
 **No sub-agents.** There's many ways to do this. Spawn fuzzy instances via tmux, or build your own with [extensions](#extensions), or install a package that does it your way.
 
@@ -401,7 +406,7 @@ Fuzzy is aggressively extensible so it doesn't have to dictate your workflow. Fe
 
 **No background bash.** Use tmux. Full observability, direct interaction.
 
-Read the [blog post](https://fuzzyos.at/posts/2025-11-30-fuzzy-code/) for the full rationale.
+Read the [blog post](https://fuzzyos.com/posts/2025-11-30-fuzzy-fuzzy-code/) for the full rationale.
 
 ---
 
@@ -432,6 +437,12 @@ fuzzy config                    # Enable/disable package resources
 | `--mode rpc` | RPC mode for process integration (see [docs/rpc.md](docs/rpc.md)) |
 | `--export <in> [out]` | Export session to HTML |
 
+In print mode, fuzzy also reads piped stdin and merges it into the initial prompt:
+
+```bash
+cat README.md | fuzzy -p "Summarize this text"
+```
+
 ### Model Options
 
 | Option | Description |
@@ -450,6 +461,7 @@ fuzzy config                    # Enable/disable package resources
 | `-c`, `--continue` | Continue most recent session |
 | `-r`, `--resume` | Browse and select session |
 | `--session <path>` | Use specific session file or partial UUID |
+| `--fork <path>` | Fork specific session file or partial UUID into a new session |
 | `--session-dir <dir>` | Custom session storage directory |
 | `--no-session` | Ephemeral mode (don't save) |
 
@@ -505,6 +517,9 @@ fuzzy "List all .ts files in src/"
 
 # Non-interactive
 fuzzy -p "Summarize this codebase"
+
+# Non-interactive with piped stdin
+cat README.md | fuzzy -p "Summarize this text"
 
 # Different model
 fuzzy --provider openai --model gpt-4o "Help me refactor"

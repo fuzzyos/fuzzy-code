@@ -59,7 +59,7 @@ vi.mock("child_process", async () => {
 });
 
 // Mock the native clipboard (not used in Wayland path, but needs to be mocked)
-vi.mock("@crosscopy/clipboard", () => ({
+vi.mock("@fuzzyos/clipboard", () => ({
 	default: {
 		hasImage: vi.fn(() => false),
 		getImageBinary: vi.fn(() => Promise.resolve(null)),

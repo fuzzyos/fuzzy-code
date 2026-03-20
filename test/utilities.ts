@@ -1,5 +1,5 @@
 /**
- * Shared test utilities for fuzzy-code tests.
+ * Shared test utilities for coding-agent tests.
  */
 
 import { chmodSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";

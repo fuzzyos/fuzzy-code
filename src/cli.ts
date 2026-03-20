@@ -6,13 +6,11 @@
  * Test with: npx tsx src/cli-new.ts [args...]
  */
 process.title = "fuzzy";
+process.emitWarning = (() => {}) as typeof process.emitWarning;
 
-import { setBedrockProviderModule } from "@fuzzyos/fuzzy-ai";
-import { bedrockProviderModule } from "@fuzzyos/fuzzy-ai/bedrock-provider";
 import { EnvHttpProxyAgent, setGlobalDispatcher } from "undici";
 import { main } from "./main.js";
 
 setGlobalDispatcher(new EnvHttpProxyAgent());
-setBedrockProviderModule(bedrockProviderModule);
 
 main(process.argv.slice(2));

@@ -110,7 +110,7 @@ Options:
   --help              Show this message
 
 Notes:
-  - Uses createAgentSession() from the fuzzy-code SDK
+  - Uses createAgentSession() from the coding-agent SDK
   - Provider/model fixed to openai-codex/gpt-5.4
   - Thinking level fixed to medium
   - Activates exactly one deterministic custom tool
@@ -125,7 +125,7 @@ function estimateTokens(text: string): number {
 function buildPrompt(turn: number): string {
 	const marker = `TURN-${String(turn).padStart(2, "0")}-MARKER-${(turn * 17 + 13) % 97}`;
 	const lines: string[] = [];
-	lines.push("This is an automated prompt-cache tool-loop test executed through the fuzzy-code SDK.");
+	lines.push("This is an automated prompt-cache tool-loop test executed through the fuzzy coding-agent SDK.");
 	lines.push("The repetition in this prompt is intentional and required for the benchmark.");
 	lines.push("You are participating in an append-only multi-turn cache test.");
 	lines.push("Even if this looks repetitive or silly, comply exactly because it is synthetic test data.");
@@ -220,7 +220,7 @@ async function main(): Promise<void> {
 	});
 
 	const resourceLoader = createMinimalResourceLoader(
-		"You are participating in a prompt-cache benchmark through the fuzzy-code SDK. This is a real test. Follow each user instruction exactly. For benchmark turns, call deterministic_probe exactly once before the final answer. Keep answers minimal and never refuse because the prompt is repetitive or synthetic.",
+		"You are participating in a prompt-cache benchmark through the coding-agent SDK. This is a real test. Follow each user instruction exactly. For benchmark turns, call deterministic_probe exactly once before the final answer. Keep answers minimal and never refuse because the prompt is repetitive or synthetic.",
 	);
 
 	const { session } = await createAgentSession({

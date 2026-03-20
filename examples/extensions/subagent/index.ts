@@ -19,7 +19,7 @@ import * as path from "node:path";
 import type { AgentToolResult } from "@fuzzyos/fuzzy-agent";
 import type { Message } from "@fuzzyos/fuzzy-ai";
 import { StringEnum } from "@fuzzyos/fuzzy-ai";
-import { type ExtensionAPI, getMarkdownTheme } from "@fuzzyos/fuzzy-code";
+import { type ExtensionAPI, getMarkdownTheme, withFileMutationQueue } from "@fuzzyos/fuzzy-code";
 import { Container, Markdown, Spacer, Text } from "@fuzzyos/fuzzy-tui";
 import { Type } from "@sinclair/typebox";
 import { type AgentConfig, type AgentScope, discoverAgents } from "./agents.js";
@@ -207,11 +207,13 @@ async function mapWithConcurrencyLimit<TIn, TOut>(
 	return results;
 }
 
-function writePromptToTempFile(agentName: string, prompt: string): { dir: string; filePath: string } {
-	const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "fuzzy-subagent-"));
+async function writePromptToTempFile(agentName: string, prompt: string): Promise<{ dir: string; filePath: string }> {
+	const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "fuzzy-subagent-"));
 	const safeName = agentName.replace(/[^\w.-]+/g, "_");
 	const filePath = path.join(tmpDir, `prompt-${safeName}.md`);
-	fs.writeFileSync(filePath, prompt, { encoding: "utf-8", mode: 0o600 });
+	await withFileMutationQueue(filePath, async () => {
+		await fs.promises.writeFile(filePath, prompt, { encoding: "utf-8", mode: 0o600 });
+	});
 	return { dir: tmpDir, filePath };
 }
 
@@ -274,7 +276,7 @@ async function runSingleAgent(
 
 	try {
 		if (agent.systemPrompt.trim()) {
-			const tmp = writePromptToTempFile(agent.name, agent.systemPrompt);
+			const tmp = await writePromptToTempFile(agent.name, agent.systemPrompt);
 			tmpPromptDir = tmp.dir;
 			tmpPromptPath = tmp.filePath;
 			args.push("--append-system-prompt", tmpPromptPath);

@@ -102,7 +102,7 @@ export function getToolPath(tool: "fd" | "rg"): string | null {
 // Fetch latest release version from GitHub
 async function getLatestVersion(repo: string): Promise<string> {
 	const response = await fetch(`https://api.github.com/repos/${repo}/releases/latest`, {
-		headers: { "User-Agent": `${APP_NAME}-fuzzy-code` },
+		headers: { "User-Agent": `${APP_NAME}-coding-agent` },
 		signal: AbortSignal.timeout(NETWORK_TIMEOUT_MS),
 	});
 

@@ -1,7 +1,7 @@
 /**
  * Extension loader - loads TypeScript extension modules using jiti.
  *
- * Uses jiti fork with virtualModules support for compiled Bun binaries.
+ * Uses @fuzzyos/jiti fork with virtualModules support for compiled Bun binaries.
  */
 
 import * as fs from "node:fs";
@@ -9,12 +9,12 @@ import { createRequire } from "node:module";
 import * as os from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createJiti } from "@fuzzyos/jiti";
 import * as _bundledPiAgentCore from "@fuzzyos/fuzzy-agent";
 import * as _bundledPiAi from "@fuzzyos/fuzzy-ai";
 import * as _bundledPiAiOauth from "@fuzzyos/fuzzy-ai/oauth";
 import type { KeyId } from "@fuzzyos/fuzzy-tui";
 import * as _bundledPiTui from "@fuzzyos/fuzzy-tui";
-import { createJiti } from "@mariozechner/jiti";
 // Static imports of packages that extensions may use.
 // These MUST be static so Bun bundles them into the compiled binary.
 // The virtualModules option then makes them available to extensions.
@@ -49,16 +49,6 @@ const VIRTUAL_MODULES: Record<string, unknown> = {
 };
 
 const require = createRequire(import.meta.url);
-
-/**
- * Returns true when running as a compiled binary (Bun or esbuild bundle).
- * In bundled mode, jiti uses virtualModules instead of filesystem aliases.
- */
-function isBundledBinary(): boolean {
-	if (isBunBinary) return true;
-	const __dirname = path.dirname(fileURLToPath(import.meta.url));
-	return !fs.existsSync(path.join(__dirname, "index.js"));
-}
 
 /**
  * Get aliases for jiti (used in Node.js/development mode).
@@ -151,8 +141,8 @@ export function createExtensionRuntime(): ExtensionRuntime {
 		pendingProviderRegistrations: [],
 		// Pre-bind: queue registrations so bindCore() can flush them once the
 		// model registry is available. bindCore() replaces both with direct calls.
-		registerProvider: (name, config) => {
-			runtime.pendingProviderRegistrations.push({ name, config });
+		registerProvider: (name, config, extensionPath = "<unknown>") => {
+			runtime.pendingProviderRegistrations.push({ name, config, extensionPath });
 		},
 		unregisterProvider: (name) => {
 			runtime.pendingProviderRegistrations = runtime.pendingProviderRegistrations.filter((r) => r.name !== name);
@@ -281,11 +271,11 @@ function createExtensionAPI(
 		},
 
 		registerProvider(name: string, config: ProviderConfig) {
-			runtime.registerProvider(name, config);
+			runtime.registerProvider(name, config, extension.path);
 		},
 
 		unregisterProvider(name: string) {
-			runtime.unregisterProvider(name);
+			runtime.unregisterProvider(name, extension.path);
 		},
 
 		events: eventBus,
@@ -300,7 +290,7 @@ async function loadExtensionModule(extensionPath: string) {
 		// In Bun binary: use virtualModules for bundled packages (no filesystem resolution)
 		// Also disable tryNative so jiti handles ALL imports (not just the entry point)
 		// In Node.js/dev: use aliases to resolve to node_modules paths
-		...(isBundledBinary() ? { virtualModules: VIRTUAL_MODULES, tryNative: false } : { alias: getAliases() }),
+		...(isBunBinary ? { virtualModules: VIRTUAL_MODULES, tryNative: false } : { alias: getAliases() }),
 	});
 
 	const module = await jiti.import(extensionPath, { default: true });
@@ -394,19 +384,19 @@ export async function loadExtensions(paths: string[], cwd: string, eventBus?: Ev
 	};
 }
 
-interface FuzzyManifest {
+interface PiManifest {
 	extensions?: string[];
 	themes?: string[];
 	skills?: string[];
 	prompts?: string[];
 }
 
-function readFuzzyManifest(packageJsonPath: string): FuzzyManifest | null {
+function readPiManifest(packageJsonPath: string): PiManifest | null {
 	try {
 		const content = fs.readFileSync(packageJsonPath, "utf-8");
 		const pkg = JSON.parse(content);
 		if (pkg.fuzzy && typeof pkg.fuzzy === "object") {
-			return pkg.fuzzy as FuzzyManifest;
+			return pkg.fuzzy as PiManifest;
 		}
 		return null;
 	} catch {
@@ -431,7 +421,7 @@ function resolveExtensionEntries(dir: string): string[] | null {
 	// Check for package.json with "fuzzy" field first
 	const packageJsonPath = path.join(dir, "package.json");
 	if (fs.existsSync(packageJsonPath)) {
-		const manifest = readFuzzyManifest(packageJsonPath);
+		const manifest = readPiManifest(packageJsonPath);
 		if (manifest?.extensions?.length) {
 			const entries: string[] = [];
 			for (const extPath of manifest.extensions) {

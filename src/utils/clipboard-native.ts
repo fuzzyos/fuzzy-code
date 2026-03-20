@@ -1,6 +1,7 @@
 import { createRequire } from "module";
 
 export type ClipboardModule = {
+	setText: (text: string) => Promise<void>;
 	hasImage: () => boolean;
 	getImageBinary: () => Promise<Array<number>>;
 };
@@ -12,7 +13,7 @@ const hasDisplay = process.platform !== "linux" || Boolean(process.env.DISPLAY |
 
 if (!process.env.TERMUX_VERSION && hasDisplay) {
 	try {
-		clipboard = require("@crosscopy/clipboard") as ClipboardModule;
+		clipboard = require("@fuzzyos/clipboard") as ClipboardModule;
 	} catch {
 		clipboard = null;
 	}
