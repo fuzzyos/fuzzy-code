@@ -16,7 +16,7 @@ const BRAILLE_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", 
 function getBaseTitle(fuzzy: ExtensionAPI): string {
 	const cwd = path.basename(process.cwd());
 	const session = fuzzy.getSessionName();
-	return session ? `π - ${session} - ${cwd}` : `π - ${cwd}`;
+	return session ? `fuzzy - ${session} - ${cwd}` : `fuzzy - ${cwd}`;
 }
 
 export default function (fuzzy: ExtensionAPI) {
@@ -38,7 +38,7 @@ export default function (fuzzy: ExtensionAPI) {
 			const frame = BRAILLE_FRAMES[frameIndex % BRAILLE_FRAMES.length];
 			const cwd = path.basename(process.cwd());
 			const session = fuzzy.getSessionName();
-			const title = session ? `${frame} π - ${session} - ${cwd}` : `${frame} π - ${cwd}`;
+			const title = session ? `${frame} fuzzy - ${session} - ${cwd}` : `${frame} fuzzy - ${cwd}`;
 			ctx.ui.setTitle(title);
 			frameIndex++;
 		}, 80);
