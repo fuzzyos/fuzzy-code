@@ -4,12 +4,7 @@
  * File-based templates that inject content when invoked with /templatename.
  */
 
-import {
-	createAgentSession,
-	DefaultResourceLoader,
-	type PromptTemplate,
-	SessionManager,
-} from "@fuzzyos/fuzzy-code";
+import { createAgentSession, DefaultResourceLoader, type PromptTemplate, SessionManager } from "@fuzzyos/fuzzy-code";
 
 // Define custom templates
 const deployTemplate: PromptTemplate = {

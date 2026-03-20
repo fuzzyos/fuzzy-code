@@ -15,14 +15,7 @@
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
-import type {
-	Agent,
-	AgentEvent,
-	AgentMessage,
-	AgentState,
-	AgentTool,
-	ThinkingLevel,
-} from "@fuzzyos/fuzzy-agent";
+import type { Agent, AgentEvent, AgentMessage, AgentState, AgentTool, ThinkingLevel } from "@fuzzyos/fuzzy-agent";
 import type { AssistantMessage, ImageContent, Message, Model, TextContent } from "@fuzzyos/fuzzy-ai";
 import { isContextOverflow, modelsAreEqual, resetApiProviders, supportsXhigh } from "@fuzzyos/fuzzy-ai";
 import { getDocsPath } from "../config.js";
