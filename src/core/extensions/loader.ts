@@ -78,10 +78,10 @@ function getAliases(): Record<string, string> | null {
 
 		_aliases = {
 			"@fuzzyos/fuzzy-code": packageIndex,
-			"@fuzzyos/fuzzy-agent": resolveWorkspaceOrImport("agent/dist/index.js", "@fuzzyos/fuzzy-agent"),
-			"@fuzzyos/fuzzy-tui": resolveWorkspaceOrImport("tui/dist/index.js", "@fuzzyos/fuzzy-tui"),
-			"@fuzzyos/fuzzy-ai": resolveWorkspaceOrImport("ai/dist/index.js", "@fuzzyos/fuzzy-ai"),
-			"@fuzzyos/fuzzy-ai/oauth": resolveWorkspaceOrImport("ai/dist/oauth.js", "@fuzzyos/fuzzy-ai/oauth"),
+			"@fuzzyos/fuzzy-agent": resolveWorkspaceOrImport("fuzzy-agent/dist/index.js", "@fuzzyos/fuzzy-agent"),
+			"@fuzzyos/fuzzy-tui": resolveWorkspaceOrImport("fuzzy-tui/dist/index.js", "@fuzzyos/fuzzy-tui"),
+			"@fuzzyos/fuzzy-ai": resolveWorkspaceOrImport("fuzzy-ai/dist/index.js", "@fuzzyos/fuzzy-ai"),
+			"@fuzzyos/fuzzy-ai/oauth": resolveWorkspaceOrImport("fuzzy-ai/dist/oauth.js", "@fuzzyos/fuzzy-ai/oauth"),
 			"@sinclair/typebox": typeboxRoot,
 		};
 	} catch {
