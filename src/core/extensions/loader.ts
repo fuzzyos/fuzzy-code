@@ -83,7 +83,10 @@ function getAliases(): Record<string, string> {
 			return path.resolve(pkgDir, String(entry));
 		}
 		const mainExport = pkgJson.exports?.["."];
-		const entry = typeof mainExport === "object" ? (mainExport.import ?? mainExport.default) : mainExport ?? pkgJson.main ?? "index.js";
+		const entry =
+			typeof mainExport === "object"
+				? (mainExport.import ?? mainExport.default)
+				: (mainExport ?? pkgJson.main ?? "index.js");
 		return path.resolve(pkgDir, String(entry));
 	};
 
@@ -310,13 +313,30 @@ function createExtensionAPI(
 	return api;
 }
 
+/**
+ * Detect whether packages are bundled into the current binary (Bun binary or esbuild bundle).
+ * In bundled mode, packages are in memory and can't be resolved from the filesystem —
+ * use virtualModules instead of filesystem aliases.
+ */
+function isBundledContext(): boolean {
+	if (isBunBinary) return true;
+	// In an esbuild bundle, @fuzzyos/fuzzy-agent is compiled in but has no node_modules on disk.
+	// Check if the alias path actually exists; if not, we're in a bundled context.
+	try {
+		const aliases = getAliases();
+		return !fs.existsSync(aliases["@fuzzyos/fuzzy-agent"]);
+	} catch {
+		return true;
+	}
+}
+
 async function loadExtensionModule(extensionPath: string) {
 	const jiti = createJiti(import.meta.url, {
 		moduleCache: false,
-		// In Bun binary: use virtualModules for bundled packages (no filesystem resolution)
-		// Also disable tryNative so jiti handles ALL imports (not just the entry point)
-		// In Node.js/dev: use aliases to resolve to node_modules paths
-		...(isBunBinary ? { virtualModules: VIRTUAL_MODULES, tryNative: false } : { alias: getAliases() }),
+		// In bundled context (Bun binary or esbuild bundle): use virtualModules so extensions can
+		// import @fuzzyos/* packages that are compiled into the bundle rather than on disk.
+		// In Node.js/dev: use filesystem aliases to resolve to node_modules / workspace dist paths.
+		...(isBundledContext() ? { virtualModules: VIRTUAL_MODULES, tryNative: false } : { alias: getAliases() }),
 	});
 
 	const module = await jiti.import(extensionPath, { default: true });
