@@ -66,20 +66,41 @@ function getAliases(): Record<string, string> {
 	const typeboxRoot = typeboxEntry.replace(/[\\/]build[\\/]cjs[\\/]index\.js$/, "");
 
 	const packagesRoot = path.resolve(__dirname, "../../../../");
-	const resolveWorkspaceOrImport = (workspaceRelativePath: string, specifier: string): string => {
+
+	// Resolve a package's ESM entry via package.json inspection (works in Node and vitest).
+	// import.meta.resolve is not available in vitest's SSR transform context.
+	const resolvePackageEntry = (specifier: string, subpath?: string): string => {
+		// Try import.meta.resolve first (proper ESM resolution, respects exports map)
+		if (typeof import.meta.resolve === "function") {
+			return fileURLToPath(import.meta.resolve(subpath ? `${specifier}/${subpath}` : specifier));
+		}
+		// Fallback: manually read package.json to find the ESM entry point
+		const pkgDir = path.join(packagesRoot, "node_modules", specifier);
+		const pkgJson = JSON.parse(fs.readFileSync(path.join(pkgDir, "package.json"), "utf-8"));
+		if (subpath) {
+			const subExport = pkgJson.exports?.[`./${subpath}`];
+			const entry = typeof subExport === "object" ? (subExport.import ?? subExport.default) : subExport;
+			return path.resolve(pkgDir, String(entry));
+		}
+		const mainExport = pkgJson.exports?.["."];
+		const entry = typeof mainExport === "object" ? (mainExport.import ?? mainExport.default) : mainExport ?? pkgJson.main ?? "index.js";
+		return path.resolve(pkgDir, String(entry));
+	};
+
+	const resolveWorkspaceOrPackage = (workspaceRelativePath: string, specifier: string, subpath?: string): string => {
 		const workspacePath = path.join(packagesRoot, workspaceRelativePath);
 		if (fs.existsSync(workspacePath)) {
 			return workspacePath;
 		}
-		return fileURLToPath(import.meta.resolve(specifier));
+		return resolvePackageEntry(specifier, subpath);
 	};
 
 	_aliases = {
 		"@fuzzyos/fuzzy-code": packageIndex,
-		"@fuzzyos/fuzzy-agent": resolveWorkspaceOrImport("agent/dist/index.js", "@fuzzyos/fuzzy-agent"),
-		"@fuzzyos/fuzzy-tui": resolveWorkspaceOrImport("tui/dist/index.js", "@fuzzyos/fuzzy-tui"),
-		"@fuzzyos/fuzzy-ai": resolveWorkspaceOrImport("ai/dist/index.js", "@fuzzyos/fuzzy-ai"),
-		"@fuzzyos/fuzzy-ai/oauth": resolveWorkspaceOrImport("ai/dist/oauth.js", "@fuzzyos/fuzzy-ai/oauth"),
+		"@fuzzyos/fuzzy-agent": resolveWorkspaceOrPackage("fuzzy-agent/dist/index.js", "@fuzzyos/fuzzy-agent"),
+		"@fuzzyos/fuzzy-tui": resolveWorkspaceOrPackage("fuzzy-tui/dist/index.js", "@fuzzyos/fuzzy-tui"),
+		"@fuzzyos/fuzzy-ai": resolveWorkspaceOrPackage("fuzzy-ai/dist/index.js", "@fuzzyos/fuzzy-ai"),
+		"@fuzzyos/fuzzy-ai/oauth": resolveWorkspaceOrPackage("fuzzy-ai/dist/oauth.js", "@fuzzyos/fuzzy-ai", "oauth"),
 		"@sinclair/typebox": typeboxRoot,
 	};
 
