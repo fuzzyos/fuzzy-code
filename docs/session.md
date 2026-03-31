@@ -116,7 +116,7 @@ interface Usage {
 }
 ```
 
-### Extended Message Types (from fuzzy-code)
+### Extended Message Types (from fuzzy-fuzzy-code)
 
 ```typescript
 interface BashExecutionMessage {

@@ -6,7 +6,7 @@ import { RpcClient } from "../src/modes/rpc/rpc-client.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /**
- * Interactive example of using coding-agent via RpcClient.
+ * Interactive example of using fuzzy-code via RpcClient.
  * Usage: npx tsx test/rpc-example.ts
  */
 

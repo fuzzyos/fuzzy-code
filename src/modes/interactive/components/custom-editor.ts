@@ -2,7 +2,7 @@ import { Editor, type EditorOptions, type EditorTheme, type TUI } from "@fuzzyos
 import type { AppKeybinding, KeybindingsManager } from "../../../core/keybindings.js";
 
 /**
- * Custom editor that handles app-level keybindings for coding-agent.
+ * Custom editor that handles app-level keybindings for fuzzy-code.
  */
 export class CustomEditor extends Editor {
 	private keybindings: KeybindingsManager;

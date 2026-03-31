@@ -1,7 +1,7 @@
 /**
  * Custom message types and transformers for the code.
  *
- * Extends the base AgentMessage type with coding-agent specific message types,
+ * Extends the base AgentMessage type with fuzzy-code specific message types,
  * and provides a transformer to convert them to LLM-compatible messages.
  */
 

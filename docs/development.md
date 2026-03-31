@@ -14,8 +14,10 @@ npm run build
 Run from source:
 
 ```bash
-./fuzzy-test.sh
+/path/to/fuzzyos/fuzzy-test.sh
 ```
+
+The script can be run from any directory. Fuzzy keeps the caller's current working directory.
 
 ## Forking / Rebranding
 
@@ -23,7 +25,7 @@ Configure via `package.json`:
 
 ```json
 {
-  "piConfig": {
+  "fuzzyConfig": {
     "name": "fuzzy",
     "configDir": ".fuzzy"
   }

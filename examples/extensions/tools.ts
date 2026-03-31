@@ -138,9 +138,4 @@ export default function toolsExtension(fuzzy: ExtensionAPI) {
 	fuzzy.on("session_tree", async (_event, ctx) => {
 		restoreFromBranch(ctx);
 	});
-
-	// Restore state after forking
-	fuzzy.on("session_fork", async (_event, ctx) => {
-		restoreFromBranch(ctx);
-	});
 }

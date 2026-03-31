@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, realpathSync, rmSync } from "node:fs";
+import { mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -115,6 +115,30 @@ describe("package commands", () => {
 			expect(process.exitCode).toBe(1);
 		} finally {
 			errorSpy.mockRestore();
+		}
+	});
+
+	it("suggests the configured source when update input omits the npm prefix", async () => {
+		const settingsPath = join(agentDir, "settings.json");
+		writeFileSync(settingsPath, JSON.stringify({ packages: ["npm:fuzzy-formatter"] }, null, 2));
+
+		const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+		const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+		try {
+			await expect(main(["update", "fuzzy-formatter"])).resolves.toBeUndefined();
+
+			const stderr = errorSpy.mock.calls.map(([message]) => String(message)).join("\n");
+			const stdout = logSpy.mock.calls.map(([message]) => String(message)).join("\n");
+			expect(stderr).toContain("Did you mean npm:fuzzy-formatter?");
+			expect(stdout).not.toContain("Updated fuzzy-formatter");
+			expect(process.exitCode).toBe(1);
+
+			const settings = JSON.parse(readFileSync(settingsPath, "utf-8")) as { packages?: string[] };
+			expect(settings.packages).toContain("npm:fuzzy-formatter");
+		} finally {
+			errorSpy.mockRestore();
+			logSpy.mockRestore();
 		}
 	});
 });

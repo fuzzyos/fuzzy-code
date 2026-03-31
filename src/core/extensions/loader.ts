@@ -26,6 +26,7 @@ import * as _bundledPiCodingAgent from "../../index.js";
 import { createEventBus, type EventBus } from "../event-bus.js";
 import type { ExecOptions } from "../exec.js";
 import { execCommand } from "../exec.js";
+import { createSyntheticSourceInfo } from "../source-info.js";
 import type {
 	Extension,
 	ExtensionAPI,
@@ -55,41 +56,32 @@ const require = createRequire(import.meta.url);
  * In Bun binary mode, virtualModules is used instead.
  */
 let _aliases: Record<string, string> | null = null;
-let _aliasesResolved = false;
-function getAliases(): Record<string, string> | null {
-	if (_aliasesResolved) return _aliases;
-	_aliasesResolved = true;
+function getAliases(): Record<string, string> {
+	if (_aliases) return _aliases;
 
-	try {
-		const __dirname = path.dirname(fileURLToPath(import.meta.url));
-		const packageIndex = path.resolve(__dirname, "../..", "index.js");
+	const __dirname = path.dirname(fileURLToPath(import.meta.url));
+	const packageIndex = path.resolve(__dirname, "../..", "index.js");
 
-		const typeboxEntry = require.resolve("@sinclair/typebox");
-		const typeboxRoot = typeboxEntry.replace(/[\\/]build[\\/]cjs[\\/]index\.js$/, "");
+	const typeboxEntry = require.resolve("@sinclair/typebox");
+	const typeboxRoot = typeboxEntry.replace(/[\\/]build[\\/]cjs[\\/]index\.js$/, "");
 
-		const packagesRoot = path.resolve(__dirname, "../../../../");
-		const resolveWorkspaceOrImport = (workspaceRelativePath: string, specifier: string): string => {
-			const workspacePath = path.join(packagesRoot, workspaceRelativePath);
-			if (fs.existsSync(workspacePath)) {
-				return workspacePath;
-			}
-			return fileURLToPath(import.meta.resolve(specifier));
-		};
+	const packagesRoot = path.resolve(__dirname, "../../../../");
+	const resolveWorkspaceOrImport = (workspaceRelativePath: string, specifier: string): string => {
+		const workspacePath = path.join(packagesRoot, workspaceRelativePath);
+		if (fs.existsSync(workspacePath)) {
+			return workspacePath;
+		}
+		return fileURLToPath(import.meta.resolve(specifier));
+	};
 
-		_aliases = {
-			"@fuzzyos/fuzzy-code": packageIndex,
-			"@fuzzyos/fuzzy-agent": resolveWorkspaceOrImport("fuzzy-agent/dist/index.js", "@fuzzyos/fuzzy-agent"),
-			"@fuzzyos/fuzzy-tui": resolveWorkspaceOrImport("fuzzy-tui/dist/index.js", "@fuzzyos/fuzzy-tui"),
-			"@fuzzyos/fuzzy-ai": resolveWorkspaceOrImport("fuzzy-ai/dist/index.js", "@fuzzyos/fuzzy-ai"),
-			"@fuzzyos/fuzzy-ai/oauth": resolveWorkspaceOrImport("fuzzy-ai/dist/oauth.js", "@fuzzyos/fuzzy-ai/oauth"),
-			"@sinclair/typebox": typeboxRoot,
-		};
-	} catch {
-		// Running in a bundled context (e.g. esbuild bundle for VSCode extension) where
-		// modules are inlined and not resolvable via require.resolve. Fall back to
-		// virtualModules so jiti can serve them from the bundled copies.
-		_aliases = null;
-	}
+	_aliases = {
+		"@fuzzyos/fuzzy-code": packageIndex,
+		"@fuzzyos/fuzzy-agent": resolveWorkspaceOrImport("agent/dist/index.js", "@fuzzyos/fuzzy-agent"),
+		"@fuzzyos/fuzzy-tui": resolveWorkspaceOrImport("tui/dist/index.js", "@fuzzyos/fuzzy-tui"),
+		"@fuzzyos/fuzzy-ai": resolveWorkspaceOrImport("ai/dist/index.js", "@fuzzyos/fuzzy-ai"),
+		"@fuzzyos/fuzzy-ai/oauth": resolveWorkspaceOrImport("ai/dist/oauth.js", "@fuzzyos/fuzzy-ai/oauth"),
+		"@sinclair/typebox": typeboxRoot,
+	};
 
 	return _aliases;
 }
@@ -183,13 +175,17 @@ function createExtensionAPI(
 		registerTool(tool: ToolDefinition): void {
 			extension.tools.set(tool.name, {
 				definition: tool,
-				extensionPath: extension.path,
+				sourceInfo: extension.sourceInfo,
 			});
 			runtime.refreshTools();
 		},
 
-		registerCommand(name: string, options: Omit<RegisteredCommand, "name">): void {
-			extension.commands.set(name, { name, ...options });
+		registerCommand(name: string, options: Omit<RegisteredCommand, "name" | "sourceInfo">): void {
+			extension.commands.set(name, {
+				name,
+				sourceInfo: extension.sourceInfo,
+				...options,
+			});
 		},
 
 		registerShortcut(
@@ -294,12 +290,12 @@ function createExtensionAPI(
 }
 
 async function loadExtensionModule(extensionPath: string) {
-	// Use virtualModules when: running as a Bun compiled binary, or when running inside an
-	// esbuild bundle (e.g. VSCode extension) where require.resolve fails for inlined modules.
-	const aliases = !isBunBinary ? getAliases() : null;
 	const jiti = createJiti(import.meta.url, {
 		moduleCache: false,
-		...(aliases ? { alias: aliases } : { virtualModules: VIRTUAL_MODULES, tryNative: false }),
+		// In Bun binary: use virtualModules for bundled packages (no filesystem resolution)
+		// Also disable tryNative so jiti handles ALL imports (not just the entry point)
+		// In Node.js/dev: use aliases to resolve to node_modules paths
+		...(isBunBinary ? { virtualModules: VIRTUAL_MODULES, tryNative: false } : { alias: getAliases() }),
 	});
 
 	const module = await jiti.import(extensionPath, { default: true });
@@ -311,9 +307,16 @@ async function loadExtensionModule(extensionPath: string) {
  * Create an Extension object with empty collections.
  */
 function createExtension(extensionPath: string, resolvedPath: string): Extension {
+	const source =
+		extensionPath.startsWith("<") && extensionPath.endsWith(">")
+			? extensionPath.slice(1, -1).split(":")[0] || "temporary"
+			: "local";
+	const baseDir = extensionPath.startsWith("<") ? undefined : path.dirname(resolvedPath);
+
 	return {
 		path: extensionPath,
 		resolvedPath,
+		sourceInfo: createSyntheticSourceInfo(extensionPath, { source, baseDir }),
 		handlers: new Map(),
 		tools: new Map(),
 		messageRenderers: new Map(),

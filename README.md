@@ -199,7 +199,7 @@ fuzzy --fork <path>       # Fork specific session file or ID into a new session
 
 - Search by typing, fold/unfold and jump between branches with Ctrl+←/Ctrl+→ or Alt+←/Alt+→, page with ←/→
 - Filter modes (Ctrl+O): default → no-tools → user-only → labeled-only → all
-- Press `l` to label entries as bookmarks
+- Press Shift+L to label entries as bookmarks and Shift+T to toggle label timestamps
 
 **`/fork`** - Create a new session file from the current branch. Opens a selector, copies history up to the selected point, and places that message in the editor for modification.
 
@@ -313,7 +313,7 @@ Place in `~/.fuzzy/agent/themes/`, `.fuzzy/themes/`, or a [fuzzy package](#fuzzy
 
 ### Fuzzy Packages
 
-Bundle and share extensions, skills, prompts, and themes via npm or git. Find packages on [npmjs.com](https://www.npmjs.com/search?q=keywords%3Api-package) or [Discord](https://discord.com/channels/1456806362351669492/1457744485428629628).
+Bundle and share extensions, skills, prompts, and themes via npm or git. Find packages on [npmjs.com](https://www.npmjs.com/search?q=fuzzyos) or [Discord](https://discord.com/channels/1487106319734276106/1487106320212557826).
 
 > **Security:** Fuzzy packages run with full system access. Extensions execute arbitrary code, and skills can instruct the model to perform any action including running executables. Review source code before installing third-party packages.
 
@@ -365,14 +365,18 @@ See [docs/packages.md](docs/packages.md).
 ```typescript
 import { AuthStorage, createAgentSession, ModelRegistry, SessionManager } from "@fuzzyos/fuzzy-code";
 
+const authStorage = AuthStorage.create();
+const modelRegistry = ModelRegistry.create(authStorage);
 const { session } = await createAgentSession({
   sessionManager: SessionManager.inMemory(),
-  authStorage: AuthStorage.create(),
-  modelRegistry: new ModelRegistry(authStorage),
+  authStorage,
+  modelRegistry,
 });
 
 await session.prompt("What files are in the current directory?");
 ```
+
+For advanced multi-session runtime replacement, use `createAgentSessionRuntime()` and `AgentSessionRuntimeHost`.
 
 See [docs/sdk.md](docs/sdk.md) and [examples/sdk/](examples/sdk/).
 
@@ -394,7 +398,7 @@ See [docs/rpc.md](docs/rpc.md) for the protocol.
 
 Fuzzy is aggressively extensible so it doesn't have to dictate your workflow. Features that other tools bake in can be built with [extensions](#extensions), [skills](#skills), or installed from third-party [fuzzy packages](#fuzzy-packages). This keeps the core minimal while letting you shape fuzzy to fit how you work.
 
-**No MCP.** Build CLI tools with READMEs (see [Skills](#skills)), or build an extension that adds MCP support. [Why?]
+**No MCP.** Build CLI tools with READMEs (see [Skills](#skills)), or build an extension that adds MCP support.
 
 **No sub-agents.** There's many ways to do this. Spawn fuzzy instances via tmux, or build your own with [extensions](#extensions), or install a package that does it your way.
 
@@ -405,8 +409,6 @@ Fuzzy is aggressively extensible so it doesn't have to dictate your workflow. Fe
 **No built-in to-dos.** They confuse models. Use a TODO.md file, or build your own with [extensions](#extensions).
 
 **No background bash.** Use tmux. Full observability, direct interaction.
-
-Read the [blog post](https://fuzzyos.com/posts/2025-11-30-fuzzy-fuzzy-code/) for the full rationale.
 
 ---
 
