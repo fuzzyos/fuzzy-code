@@ -183,10 +183,7 @@ export default function presetExtension(fuzzy: ExtensionAPI) {
 		const presetNames = Object.keys(presets);
 
 		if (presetNames.length === 0) {
-			ctx.ui.notify(
-				"No presets defined. Add presets to ~/.fuzzy/agent/presets.json or .fuzzy/presets.json",
-				"warning",
-			);
+			ctx.ui.notify("No presets defined. Add presets to ~/.fuzzy/agent/presets.json or .fuzzy/presets.json", "warning");
 			return;
 		}
 
@@ -286,10 +283,7 @@ export default function presetExtension(fuzzy: ExtensionAPI) {
 	async function cyclePreset(ctx: ExtensionContext): Promise<void> {
 		const presetNames = getPresetOrder();
 		if (presetNames.length === 0) {
-			ctx.ui.notify(
-				"No presets defined. Add presets to ~/.fuzzy/agent/presets.json or .fuzzy/presets.json",
-				"warning",
-			);
+			ctx.ui.notify("No presets defined. Add presets to ~/.fuzzy/agent/presets.json or .fuzzy/presets.json", "warning");
 			return;
 		}
 

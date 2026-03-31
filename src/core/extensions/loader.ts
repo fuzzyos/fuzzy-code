@@ -9,12 +9,12 @@ import { createRequire } from "node:module";
 import * as os from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createJiti } from "@fuzzyos/jiti";
 import * as _bundledPiAgentCore from "@fuzzyos/fuzzy-agent";
 import * as _bundledPiAi from "@fuzzyos/fuzzy-ai";
 import * as _bundledPiAiOauth from "@fuzzyos/fuzzy-ai/oauth";
 import type { KeyId } from "@fuzzyos/fuzzy-tui";
 import * as _bundledPiTui from "@fuzzyos/fuzzy-tui";
-import { createJiti } from "@fuzzyos/jiti";
 // Static imports of packages that extensions may use.
 // These MUST be static so Bun bundles them into the compiled binary.
 // The virtualModules option then makes them available to extensions.
@@ -66,44 +66,20 @@ function getAliases(): Record<string, string> {
 	const typeboxRoot = typeboxEntry.replace(/[\\/]build[\\/]cjs[\\/]index\.js$/, "");
 
 	const packagesRoot = path.resolve(__dirname, "../../../../");
-
-	// Resolve a package's ESM entry via package.json inspection (works in Node and vitest).
-	// import.meta.resolve is not available in vitest's SSR transform context.
-	const resolvePackageEntry = (specifier: string, subpath?: string): string => {
-		// Try import.meta.resolve first (proper ESM resolution, respects exports map)
-		if (typeof import.meta.resolve === "function") {
-			return fileURLToPath(import.meta.resolve(subpath ? `${specifier}/${subpath}` : specifier));
-		}
-		// Fallback: manually read package.json to find the ESM entry point
-		const pkgDir = path.join(packagesRoot, "node_modules", specifier);
-		const pkgJson = JSON.parse(fs.readFileSync(path.join(pkgDir, "package.json"), "utf-8"));
-		if (subpath) {
-			const subExport = pkgJson.exports?.[`./${subpath}`];
-			const entry = typeof subExport === "object" ? (subExport.import ?? subExport.default) : subExport;
-			return path.resolve(pkgDir, String(entry));
-		}
-		const mainExport = pkgJson.exports?.["."];
-		const entry =
-			typeof mainExport === "object"
-				? (mainExport.import ?? mainExport.default)
-				: (mainExport ?? pkgJson.main ?? "index.js");
-		return path.resolve(pkgDir, String(entry));
-	};
-
-	const resolveWorkspaceOrPackage = (workspaceRelativePath: string, specifier: string, subpath?: string): string => {
+	const resolveWorkspaceOrImport = (workspaceRelativePath: string, specifier: string): string => {
 		const workspacePath = path.join(packagesRoot, workspaceRelativePath);
 		if (fs.existsSync(workspacePath)) {
 			return workspacePath;
 		}
-		return resolvePackageEntry(specifier, subpath);
+		return fileURLToPath(import.meta.resolve(specifier));
 	};
 
 	_aliases = {
 		"@fuzzyos/fuzzy-code": packageIndex,
-		"@fuzzyos/fuzzy-agent": resolveWorkspaceOrPackage("fuzzy-agent/dist/index.js", "@fuzzyos/fuzzy-agent"),
-		"@fuzzyos/fuzzy-tui": resolveWorkspaceOrPackage("fuzzy-tui/dist/index.js", "@fuzzyos/fuzzy-tui"),
-		"@fuzzyos/fuzzy-ai": resolveWorkspaceOrPackage("fuzzy-ai/dist/index.js", "@fuzzyos/fuzzy-ai"),
-		"@fuzzyos/fuzzy-ai/oauth": resolveWorkspaceOrPackage("fuzzy-ai/dist/oauth.js", "@fuzzyos/fuzzy-ai", "oauth"),
+		"@fuzzyos/fuzzy-agent": resolveWorkspaceOrImport("agent/dist/index.js", "@fuzzyos/fuzzy-agent"),
+		"@fuzzyos/fuzzy-tui": resolveWorkspaceOrImport("tui/dist/index.js", "@fuzzyos/fuzzy-tui"),
+		"@fuzzyos/fuzzy-ai": resolveWorkspaceOrImport("ai/dist/index.js", "@fuzzyos/fuzzy-ai"),
+		"@fuzzyos/fuzzy-ai/oauth": resolveWorkspaceOrImport("ai/dist/oauth.js", "@fuzzyos/fuzzy-ai/oauth"),
 		"@sinclair/typebox": typeboxRoot,
 	};
 
@@ -313,30 +289,13 @@ function createExtensionAPI(
 	return api;
 }
 
-/**
- * Detect whether packages are bundled into the current binary (Bun binary or esbuild bundle).
- * In bundled mode, packages are in memory and can't be resolved from the filesystem —
- * use virtualModules instead of filesystem aliases.
- */
-function isBundledContext(): boolean {
-	if (isBunBinary) return true;
-	// In an esbuild bundle, @fuzzyos/fuzzy-agent is compiled in but has no node_modules on disk.
-	// Check if the alias path actually exists; if not, we're in a bundled context.
-	try {
-		const aliases = getAliases();
-		return !fs.existsSync(aliases["@fuzzyos/fuzzy-agent"]);
-	} catch {
-		return true;
-	}
-}
-
 async function loadExtensionModule(extensionPath: string) {
 	const jiti = createJiti(import.meta.url, {
 		moduleCache: false,
-		// In bundled context (Bun binary or esbuild bundle): use virtualModules so extensions can
-		// import @fuzzyos/* packages that are compiled into the bundle rather than on disk.
-		// In Node.js/dev: use filesystem aliases to resolve to node_modules / workspace dist paths.
-		...(isBundledContext() ? { virtualModules: VIRTUAL_MODULES, tryNative: false } : { alias: getAliases() }),
+		// In Bun binary: use virtualModules for bundled packages (no filesystem resolution)
+		// Also disable tryNative so jiti handles ALL imports (not just the entry point)
+		// In Node.js/dev: use aliases to resolve to node_modules paths
+		...(isBunBinary ? { virtualModules: VIRTUAL_MODULES, tryNative: false } : { alias: getAliases() }),
 	});
 
 	const module = await jiti.import(extensionPath, { default: true });

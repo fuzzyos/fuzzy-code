@@ -1,6 +1,6 @@
 {
 	"$schema": "http://json-schema.org/draft-07/schema#",
-	"title": "Fuzzy Code Theme",
+	"title": "Fuzzy code Theme",
 	"description": "Theme schema for Fuzzy code",
 	"type": "object",
 	"required": ["name", "colors"],
