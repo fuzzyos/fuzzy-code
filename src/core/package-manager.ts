@@ -2017,7 +2017,10 @@ export class DefaultPackageManager implements PackageManager {
 		);
 		addResources(
 			"skills",
-			[...collectAutoSkillEntries(userDirs.skills, "fuzzy"), ...collectAutoSkillEntries(userAgentsSkillsDir, "agents")],
+			[
+				...collectAutoSkillEntries(userDirs.skills, "fuzzy"),
+				...collectAutoSkillEntries(userAgentsSkillsDir, "agents"),
+			],
 			userMetadata,
 			userOverrides.skills,
 			globalBaseDir,
