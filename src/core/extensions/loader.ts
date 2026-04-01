@@ -53,35 +53,44 @@ const require = createRequire(import.meta.url);
 
 /**
  * Get aliases for jiti (used in Node.js/development mode).
- * In Bun binary mode, virtualModules is used instead.
+ * In Bun binary or esbuild bundle (VS Code extension) mode, virtualModules is used instead.
+ * Returns null when running in an esbuild bundle where require.resolve() is unavailable.
  */
 let _aliases: Record<string, string> | null = null;
-function getAliases(): Record<string, string> {
-	if (_aliases) return _aliases;
+let _aliasesResolved = false;
+function getAliases(): Record<string, string> | null {
+	if (_aliasesResolved) return _aliases;
+	_aliasesResolved = true;
 
-	const __dirname = path.dirname(fileURLToPath(import.meta.url));
-	const packageIndex = path.resolve(__dirname, "../..", "index.js");
+	try {
+		const __dirname = path.dirname(fileURLToPath(import.meta.url));
+		const packageIndex = path.resolve(__dirname, "../..", "index.js");
 
-	const typeboxEntry = require.resolve("@sinclair/typebox");
-	const typeboxRoot = typeboxEntry.replace(/[\\/]build[\\/]cjs[\\/]index\.js$/, "");
+		const typeboxEntry = require.resolve("@sinclair/typebox");
+		const typeboxRoot = typeboxEntry.replace(/[\\/]build[\\/]cjs[\\/]index\.js$/, "");
 
-	const packagesRoot = path.resolve(__dirname, "../../../../");
-	const resolveWorkspaceOrImport = (workspaceRelativePath: string, specifier: string): string => {
-		const workspacePath = path.join(packagesRoot, workspaceRelativePath);
-		if (fs.existsSync(workspacePath)) {
-			return workspacePath;
-		}
-		return fileURLToPath(import.meta.resolve(specifier));
-	};
+		const packagesRoot = path.resolve(__dirname, "../../../../");
+		const resolveWorkspaceOrImport = (workspaceRelativePath: string, specifier: string): string => {
+			const workspacePath = path.join(packagesRoot, workspaceRelativePath);
+			if (fs.existsSync(workspacePath)) {
+				return workspacePath;
+			}
+			return fileURLToPath(import.meta.resolve(specifier));
+		};
 
-	_aliases = {
-		"@fuzzyos/fuzzy-code": packageIndex,
-		"@fuzzyos/fuzzy-agent": resolveWorkspaceOrImport("agent/dist/index.js", "@fuzzyos/fuzzy-agent"),
-		"@fuzzyos/fuzzy-tui": resolveWorkspaceOrImport("tui/dist/index.js", "@fuzzyos/fuzzy-tui"),
-		"@fuzzyos/fuzzy-ai": resolveWorkspaceOrImport("ai/dist/index.js", "@fuzzyos/fuzzy-ai"),
-		"@fuzzyos/fuzzy-ai/oauth": resolveWorkspaceOrImport("ai/dist/oauth.js", "@fuzzyos/fuzzy-ai/oauth"),
-		"@sinclair/typebox": typeboxRoot,
-	};
+		_aliases = {
+			"@fuzzyos/fuzzy-code": packageIndex,
+			"@fuzzyos/fuzzy-agent": resolveWorkspaceOrImport("agent/dist/index.js", "@fuzzyos/fuzzy-agent"),
+			"@fuzzyos/fuzzy-tui": resolveWorkspaceOrImport("tui/dist/index.js", "@fuzzyos/fuzzy-tui"),
+			"@fuzzyos/fuzzy-ai": resolveWorkspaceOrImport("ai/dist/index.js", "@fuzzyos/fuzzy-ai"),
+			"@fuzzyos/fuzzy-ai/oauth": resolveWorkspaceOrImport("ai/dist/oauth.js", "@fuzzyos/fuzzy-ai/oauth"),
+			"@sinclair/typebox": typeboxRoot,
+		};
+	} catch {
+		// Running in esbuild bundle (VS Code extension) - require.resolve() is unavailable.
+		// Fall back to virtualModules instead.
+		_aliases = null;
+	}
 
 	return _aliases;
 }
@@ -295,7 +304,9 @@ async function loadExtensionModule(extensionPath: string) {
 		// In Bun binary: use virtualModules for bundled packages (no filesystem resolution)
 		// Also disable tryNative so jiti handles ALL imports (not just the entry point)
 		// In Node.js/dev: use aliases to resolve to node_modules paths
-		...(isBunBinary ? { virtualModules: VIRTUAL_MODULES, tryNative: false } : { alias: getAliases() }),
+		...(isBunBinary || getAliases() === null
+			? { virtualModules: VIRTUAL_MODULES, tryNative: false }
+			: { alias: getAliases()! }),
 	});
 
 	const module = await jiti.import(extensionPath, { default: true });
