@@ -2,6 +2,7 @@
 	"$schema": "https://raw.githubusercontent.com/fuzzyos/fuzzy-code/main/src/modes/interactive/theme/theme-schema.json",
 	"name": "light",
 	"vars": {
+		"deepPurple": "#7e57c2",
 		"teal": "#5a8080",
 		"blue": "#547da7",
 		"green": "#588458",
@@ -35,7 +36,7 @@
 		"userMessageText": "",
 		"customMessageBg": "customMsgBg",
 		"customMessageText": "",
-		"customMessageLabel": "#7e57c2",
+		"customMessageLabel": "deepPurple",
 		"toolPendingBg": "toolPendingBg",
 		"toolSuccessBg": "toolSuccessBg",
 		"toolErrorBg": "toolErrorBg",
