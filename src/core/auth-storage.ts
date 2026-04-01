@@ -6,7 +6,12 @@
  * try to refresh tokens simultaneously.
  */
 
-import { getEnvApiKey, type OAuthCredentials, type OAuthLoginCallbacks, type OAuthProviderId } from "@fuzzyos/fuzzy-ai";
+import {
+	getEnvApiKey,
+	type OAuthCredentials,
+	type OAuthLoginCallbacks,
+	type OAuthProviderId,
+} from "@fuzzyos/fuzzy-ai";
 import { getOAuthApiKey, getOAuthProvider, getOAuthProviders } from "@fuzzyos/fuzzy-ai/oauth";
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
