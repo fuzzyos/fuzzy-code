@@ -1,6 +1,6 @@
 # Examples
 
-Example code for fuzzy-fuzzy-code SDK and extensions.
+Example code for fuzzy-code SDK and extensions.
 
 ## Directories
 

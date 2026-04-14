@@ -140,7 +140,7 @@ Type `/` in the editor to trigger commands. [Extensions](#extensions) can regist
 | `/reload` | Reload keybindings, extensions, skills, prompts, and context files (themes hot-reload automatically) |
 | `/hotkeys` | Show all keyboard shortcuts |
 | `/changelog` | Display version history |
-| `/quit`, `/exit` | Quit fuzzy |
+| `/quit` | Quit fuzzy |
 
 ### Keyboard Shortcuts
 
@@ -227,6 +227,8 @@ Use `/settings` to modify common options, or edit JSON files directly:
 | `.fuzzy/settings.json` | Project (overrides global) |
 
 See [docs/settings.md](docs/settings.md) for all options.
+
+To opt out of anonymous install/update telemetry tied to changelog detection, set `enableInstallTelemetry` to `false` in `settings.json`, or set `FUZZY_TELEMETRY=0`.
 
 ---
 
@@ -376,7 +378,7 @@ const { session } = await createAgentSession({
 await session.prompt("What files are in the current directory?");
 ```
 
-For advanced multi-session runtime replacement, use `createAgentSessionRuntime()` and `AgentSessionRuntimeHost`.
+For advanced multi-session runtime replacement, use `createAgentSessionRuntime()` and `AgentSessionRuntime`.
 
 See [docs/sdk.md](docs/sdk.md) and [examples/sdk/](examples/sdk/).
 
@@ -546,9 +548,10 @@ fuzzy --thinking high "Solve this complex problem"
 
 | Variable | Description |
 |----------|-------------|
-| `FUZZY_CODING_AGENT_DIR` | Override config directory (default: `~/.fuzzy/agent`) |
+| `FUZZY_CODE_DIR` | Override config directory (default: `~/.fuzzy/agent`) |
 | `FUZZY_PACKAGE_DIR` | Override package directory (useful for Nix/Guix where store paths tokenize poorly) |
 | `FUZZY_SKIP_VERSION_CHECK` | Skip version check at startup |
+| `FUZZY_TELEMETRY` | Override install telemetry. Use `1`/`true`/`yes` to enable or `0`/`false`/`no` to disable |
 | `FUZZY_CACHE_RETENTION` | Set to `long` for extended prompt cache (Anthropic: 1h, OpenAI: 24h) |
 | `VISUAL`, `EDITOR` | External editor for Ctrl+G |
 

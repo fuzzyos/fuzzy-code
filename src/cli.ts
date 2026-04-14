@@ -6,6 +6,7 @@
  * Test with: npx tsx src/cli-new.ts [args...]
  */
 process.title = "fuzzy";
+process.env.FUZZY_CODE = "true";
 process.emitWarning = (() => {}) as typeof process.emitWarning;
 
 import { EnvHttpProxyAgent, setGlobalDispatcher } from "undici";

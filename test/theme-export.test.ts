@@ -21,17 +21,17 @@ describe("getThemeExportColors", () => {
 
 	beforeEach(() => {
 		tempRoot = mkdtempSync(join(tmpdir(), "fuzzy-theme-export-"));
-		previousAgentDir = process.env.FUZZY_CODING_AGENT_DIR;
-		process.env.FUZZY_CODING_AGENT_DIR = join(tempRoot, "agent");
-		mkdirSync(join(process.env.FUZZY_CODING_AGENT_DIR, "themes"), { recursive: true });
+		previousAgentDir = process.env.FUZZY_CODE_DIR;
+		process.env.FUZZY_CODE_DIR = join(tempRoot, "agent");
+		mkdirSync(join(process.env.FUZZY_CODE_DIR, "themes"), { recursive: true });
 	});
 
 	afterEach(() => {
 		rmSync(tempRoot, { recursive: true, force: true });
 		if (previousAgentDir === undefined) {
-			delete process.env.FUZZY_CODING_AGENT_DIR;
+			delete process.env.FUZZY_CODE_DIR;
 		} else {
-			process.env.FUZZY_CODING_AGENT_DIR = previousAgentDir;
+			process.env.FUZZY_CODE_DIR = previousAgentDir;
 		}
 	});
 
@@ -58,7 +58,7 @@ describe("getThemeExportColors", () => {
 		};
 
 		writeFileSync(
-			join(process.env.FUZZY_CODING_AGENT_DIR!, "themes", "custom-export-vars.json"),
+			join(process.env.FUZZY_CODE_DIR!, "themes", "custom-export-vars.json"),
 			JSON.stringify(customTheme, null, 2),
 		);
 
@@ -91,7 +91,7 @@ describe("getThemeExportColors", () => {
 		};
 
 		writeFileSync(
-			join(process.env.FUZZY_CODING_AGENT_DIR!, "themes", "custom-export-recursive.json"),
+			join(process.env.FUZZY_CODE_DIR!, "themes", "custom-export-recursive.json"),
 			JSON.stringify(customTheme, null, 2),
 		);
 

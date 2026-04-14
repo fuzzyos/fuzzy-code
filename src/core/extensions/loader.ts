@@ -9,12 +9,12 @@ import { createRequire } from "node:module";
 import * as os from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createJiti } from "@fuzzyos/jiti";
 import * as _bundledPiAgentCore from "@fuzzyos/fuzzy-agent";
 import * as _bundledPiAi from "@fuzzyos/fuzzy-ai";
 import * as _bundledPiAiOauth from "@fuzzyos/fuzzy-ai/oauth";
 import type { KeyId } from "@fuzzyos/fuzzy-tui";
 import * as _bundledPiTui from "@fuzzyos/fuzzy-tui";
-import { createJiti } from "@fuzzyos/jiti";
 // Static imports of packages that extensions may use.
 // These MUST be static so Bun bundles them into the compiled binary.
 // The virtualModules option then makes them available to extensions.
@@ -53,44 +53,35 @@ const require = createRequire(import.meta.url);
 
 /**
  * Get aliases for jiti (used in Node.js/development mode).
- * In Bun binary or esbuild bundle (VS Code extension) mode, virtualModules is used instead.
- * Returns null when running in an esbuild bundle where require.resolve() is unavailable.
+ * In Bun binary mode, virtualModules is used instead.
  */
 let _aliases: Record<string, string> | null = null;
-let _aliasesResolved = false;
-function getAliases(): Record<string, string> | null {
-	if (_aliasesResolved) return _aliases;
-	_aliasesResolved = true;
+function getAliases(): Record<string, string> {
+	if (_aliases) return _aliases;
 
-	try {
-		const __dirname = path.dirname(fileURLToPath(import.meta.url));
-		const packageIndex = path.resolve(__dirname, "../..", "index.js");
+	const __dirname = path.dirname(fileURLToPath(import.meta.url));
+	const packageIndex = path.resolve(__dirname, "../..", "index.js");
 
-		const typeboxEntry = require.resolve("@sinclair/typebox");
-		const typeboxRoot = typeboxEntry.replace(/[\\/]build[\\/]cjs[\\/]index\.js$/, "");
+	const typeboxEntry = require.resolve("@sinclair/typebox");
+	const typeboxRoot = typeboxEntry.replace(/[\\/]build[\\/]cjs[\\/]index\.js$/, "");
 
-		const packagesRoot = path.resolve(__dirname, "../../../../");
-		const resolveWorkspaceOrImport = (workspaceRelativePath: string, specifier: string): string => {
-			const workspacePath = path.join(packagesRoot, workspaceRelativePath);
-			if (fs.existsSync(workspacePath)) {
-				return workspacePath;
-			}
-			return fileURLToPath(import.meta.resolve(specifier));
-		};
+	const packagesRoot = path.resolve(__dirname, "../../../../");
+	const resolveWorkspaceOrImport = (workspaceRelativePath: string, specifier: string): string => {
+		const workspacePath = path.join(packagesRoot, workspaceRelativePath);
+		if (fs.existsSync(workspacePath)) {
+			return workspacePath;
+		}
+		return fileURLToPath(import.meta.resolve(specifier));
+	};
 
-		_aliases = {
-			"@fuzzyos/fuzzy-code": packageIndex,
-			"@fuzzyos/fuzzy-agent": resolveWorkspaceOrImport("agent/dist/index.js", "@fuzzyos/fuzzy-agent"),
-			"@fuzzyos/fuzzy-tui": resolveWorkspaceOrImport("tui/dist/index.js", "@fuzzyos/fuzzy-tui"),
-			"@fuzzyos/fuzzy-ai": resolveWorkspaceOrImport("ai/dist/index.js", "@fuzzyos/fuzzy-ai"),
-			"@fuzzyos/fuzzy-ai/oauth": resolveWorkspaceOrImport("ai/dist/oauth.js", "@fuzzyos/fuzzy-ai/oauth"),
-			"@sinclair/typebox": typeboxRoot,
-		};
-	} catch {
-		// Running in esbuild bundle (VS Code extension) - require.resolve() is unavailable.
-		// Fall back to virtualModules instead.
-		_aliases = null;
-	}
+	_aliases = {
+		"@fuzzyos/fuzzy-code": packageIndex,
+		"@fuzzyos/fuzzy-agent": resolveWorkspaceOrImport("agent/dist/index.js", "@fuzzyos/fuzzy-agent"),
+		"@fuzzyos/fuzzy-tui": resolveWorkspaceOrImport("tui/dist/index.js", "@fuzzyos/fuzzy-tui"),
+		"@fuzzyos/fuzzy-ai": resolveWorkspaceOrImport("ai/dist/index.js", "@fuzzyos/fuzzy-ai"),
+		"@fuzzyos/fuzzy-ai/oauth": resolveWorkspaceOrImport("ai/dist/oauth.js", "@fuzzyos/fuzzy-ai/oauth"),
+		"@sinclair/typebox": typeboxRoot,
+	};
 
 	return _aliases;
 }
@@ -304,9 +295,7 @@ async function loadExtensionModule(extensionPath: string) {
 		// In Bun binary: use virtualModules for bundled packages (no filesystem resolution)
 		// Also disable tryNative so jiti handles ALL imports (not just the entry point)
 		// In Node.js/dev: use aliases to resolve to node_modules paths
-		...(isBunBinary || getAliases() === null
-			? { virtualModules: VIRTUAL_MODULES, tryNative: false }
-			: { alias: getAliases()! }),
+		...(isBunBinary ? { virtualModules: VIRTUAL_MODULES, tryNative: false } : { alias: getAliases() }),
 	});
 
 	const module = await jiti.import(extensionPath, { default: true });
@@ -407,19 +396,19 @@ export async function loadExtensions(paths: string[], cwd: string, eventBus?: Ev
 	};
 }
 
-interface PiManifest {
+interface FuzzyManifest {
 	extensions?: string[];
 	themes?: string[];
 	skills?: string[];
 	prompts?: string[];
 }
 
-function readPiManifest(packageJsonPath: string): PiManifest | null {
+function readFuzzyManifest(packageJsonPath: string): FuzzyManifest | null {
 	try {
 		const content = fs.readFileSync(packageJsonPath, "utf-8");
 		const pkg = JSON.parse(content);
 		if (pkg.fuzzy && typeof pkg.fuzzy === "object") {
-			return pkg.fuzzy as PiManifest;
+			return pkg.fuzzy as FuzzyManifest;
 		}
 		return null;
 	} catch {
@@ -444,7 +433,7 @@ function resolveExtensionEntries(dir: string): string[] | null {
 	// Check for package.json with "fuzzy" field first
 	const packageJsonPath = path.join(dir, "package.json");
 	if (fs.existsSync(packageJsonPath)) {
-		const manifest = readPiManifest(packageJsonPath);
+		const manifest = readFuzzyManifest(packageJsonPath);
 		if (manifest?.extensions?.length) {
 			const entries: string[] = [];
 			for (const extPath of manifest.extensions) {

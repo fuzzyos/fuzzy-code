@@ -10,7 +10,7 @@
  * via `tool_call` input mutation without replacing the tool.
  *
  * Config files (merged, project takes precedence):
- * - ~/.fuzzy/agent/sandbox.json (global)
+ * - ~/.fuzzy/agent/extensions/sandbox.json (global)
  * - <cwd>/.fuzzy/sandbox.json (project-local)
  *
  * Example .fuzzy/sandbox.json:

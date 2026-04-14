@@ -158,6 +158,26 @@ export function getChangelogPath(): string {
 	return resolve(join(getPackageDir(), "CHANGELOG.md"));
 }
 
+/**
+ * Get path to built-in interactive assets directory.
+ * - For Bun binary: assets/ next to executable
+ * - For Node.js (dist/): dist/modes/interactive/assets/
+ * - For tsx (src/): src/modes/interactive/assets/
+ */
+export function getInteractiveAssetsDir(): string {
+	if (isBunBinary) {
+		return join(dirname(process.execPath), "assets");
+	}
+	const packageDir = getPackageDir();
+	const srcOrDist = existsSync(join(packageDir, "src")) ? "src" : "dist";
+	return join(packageDir, srcOrDist, "modes", "interactive", "assets");
+}
+
+/** Get path to a bundled interactive asset */
+export function getBundledInteractiveAssetPath(name: string): string {
+	return join(getInteractiveAssetsDir(), name);
+}
+
 // =============================================================================
 // App Config (from package.json fuzzyConfig)
 // =============================================================================
@@ -168,7 +188,7 @@ export const APP_NAME: string = pkg.fuzzyConfig?.name || "fuzzy";
 export const CONFIG_DIR_NAME: string = pkg.fuzzyConfig?.configDir || ".fuzzy";
 export const VERSION: string = pkg.version;
 
-// e.g., FUZZY_CODING_AGENT_DIR or TAU_CODING_AGENT_DIR
+// e.g., FUZZY_CODE_DIR or TAU_CODING_AGENT_DIR
 export const ENV_AGENT_DIR = `${APP_NAME.toUpperCase()}_CODING_AGENT_DIR`;
 
 const DEFAULT_SHARE_VIEWER_URL = "https://fuzzyos.com/session/";
