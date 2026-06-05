@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import { Agent, type AgentMessage, type ThinkingLevel } from "@fuzzyos/fuzzy-agent";
-import { clampThinkingLevel, type Message, type Model, streamSimple } from "@fuzzyos/fuzzy-ai";
+import { clampThinkingLevel, type Context, type Message, type Model, type SimpleStreamOptions, streamSimple } from "@fuzzyos/fuzzy-ai";
 import { getAgentDir } from "../config.ts";
 import { resolvePath } from "../utils/paths.ts";
 import { AgentSession } from "./agent-session.ts";
@@ -298,7 +298,7 @@ export async function createAgentSession(options: CreateAgentSessionOptions = {}
 			tools: [],
 		},
 		convertToLlm: convertToLlmWithBlockImages,
-		streamFn: async (model, context, options) => {
+		streamFn: async (model: Model<any>, context: Context, options?: SimpleStreamOptions) => {
 			const auth = await modelRegistry.getApiKeyAndHeaders(model);
 			if (!auth.ok) {
 				throw new Error(auth.error);

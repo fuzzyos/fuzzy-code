@@ -1,16 +1,16 @@
 {
 	"name": "@fuzzyos/fuzzy-code",
-	"version": "0.4.2",
+	"version": "0.4.4",
 	"lockfileVersion": 3,
 	"requires": true,
 	"packages": {
 		"": {
 			"name": "@fuzzyos/fuzzy-code",
-			"version": "0.4.2",
+			"version": "0.4.4",
 			"license": "MIT",
 			"dependencies": {
-				"@fuzzyos/fuzzy-agent": "0.4.0",
-				"@fuzzyos/fuzzy-ai": "0.4.0",
+				"@fuzzyos/fuzzy-agent": "0.4.1",
+				"@fuzzyos/fuzzy-ai": "0.4.1",
 				"@fuzzyos/fuzzy-tui": "0.4.0",
 				"@silvia-odwyer/photon-node": "0.3.4",
 				"chalk": "5.6.2",
@@ -453,11 +453,11 @@
 			}
 		},
 		"node_modules/@fuzzyos/fuzzy-agent": {
-			"version": "0.4.0",
-			"resolved": "https://registry.npmjs.org/@fuzzyos/fuzzy-agent/-/fuzzy-agent-0.4.0.tgz",
+			"version": "0.4.1",
+			"resolved": "https://registry.npmjs.org/@fuzzyos/fuzzy-agent/-/fuzzy-agent-0.4.1.tgz",
 			"license": "MIT",
 			"dependencies": {
-				"@fuzzyos/fuzzy-ai": "0.4.0",
+				"@fuzzyos/fuzzy-ai": "0.4.1",
 				"ignore": "7.0.5",
 				"typebox": "1.1.38",
 				"yaml": "2.9.0"
@@ -467,8 +467,8 @@
 			}
 		},
 		"node_modules/@fuzzyos/fuzzy-ai": {
-			"version": "0.4.0",
-			"resolved": "https://registry.npmjs.org/@fuzzyos/fuzzy-ai/-/fuzzy-ai-0.4.0.tgz",
+			"version": "0.4.1",
+			"resolved": "https://registry.npmjs.org/@fuzzyos/fuzzy-ai/-/fuzzy-ai-0.4.1.tgz",
 			"license": "MIT",
 			"dependencies": {
 				"@anthropic-ai/sdk": "0.91.1",

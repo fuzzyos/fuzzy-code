@@ -377,7 +377,7 @@ export class AgentSession {
 		apiKey?: string;
 		headers?: Record<string, string>;
 	}> {
-		if (this.agent.streamFn === streamSimple) {
+		if ((this.agent.streamFn as unknown) === (streamSimple as unknown)) {
 			return this._getRequiredRequestAuth(model);
 		}
 
@@ -1886,7 +1886,7 @@ export class AgentSession {
 
 			let apiKey: string | undefined;
 			let headers: Record<string, string> | undefined;
-			if (this.agent.streamFn === streamSimple) {
+			if ((this.agent.streamFn as unknown) === (streamSimple as unknown)) {
 				const authResult = await this._modelRegistry.getApiKeyAndHeaders(this.model);
 				if (!authResult.ok || !authResult.apiKey) {
 					this._emit({
