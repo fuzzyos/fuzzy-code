@@ -63,9 +63,7 @@
 			"rimraf": "6.1.2"
 		}
 	},
-	"optionalDependencies": {
-		"@fuzzyos/clipboard": "0.3.9"
-	},
+
 	"devDependencies": {
 		"@types/cross-spawn": "6.0.6",
 		"@types/diff": "7.0.2",
