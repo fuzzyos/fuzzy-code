@@ -1,6 +1,6 @@
 {
 	"name": "@fuzzyos/fuzzy-code",
-	"version": "0.4.0",
+	"version": "0.4.1",
 	"description": "Coding agent CLI with read, bash, edit, write tools and session management",
 	"type": "module",
 	"fuzzyConfig": {
@@ -63,7 +63,6 @@
 			"rimraf": "6.1.2"
 		}
 	},
-
 	"devDependencies": {
 		"@types/cross-spawn": "6.0.6",
 		"@types/diff": "7.0.2",
